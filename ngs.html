@@ -3,263 +3,1759 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NGS Sequencing 입문 | 30분 수업</title>
-<meta name="description" content="유전체와 유전자 개론부터 Sanger/NGS 시퀀싱 원리, SFTS 바이러스 실습까지 — 인터랙티브 30분 수업">
-<link rel="stylesheet" href="assets/style.css">
+<title>NGS 유전체 분석 교육</title>
 <style>
-  .hero {
-    background: var(--ink);
-    color: var(--text-on-dark);
-    padding: 64px 24px 0;
-    overflow: hidden;
-    position: relative;
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --surface3: #30363d;
+    --border: #30363d;
+    --border2: #484f58;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #6e7681;
+    --accent: #58a6ff;
+    --accent2: #1f6feb;
+    --green: #3fb950;
+    --green2: #238636;
+    --amber: #d29922;
+    --amber2: #e3b341;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --teal: #39d353;
+    --pink: #ff7b72;
+    --mono: 'Courier New', monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-  .hero-inner {
-    max-width: var(--maxw); margin: 0 auto;
-    display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  /* Header */
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
     align-items: center;
-    padding-bottom: 56px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-  @media (max-width: 880px) { .hero-inner { grid-template-columns: 1fr; } }
-
-  .hero h1 { margin: 18px 0 20px; }
-  .hero h1 .hl { color: var(--base-A); }
-  .hero-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px; }
-
-  /* Animated FASTQ reel — signature element */
-  .fastq-reel {
-    background: var(--ink-soft);
-    border: 1px solid var(--ink-line);
-    border-radius: 12px;
-    padding: 0;
-    overflow: hidden;
+  .logo-dna {
+    font-size: 24px;
   }
-  .fastq-reel .bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 16px; border-bottom: 1px solid var(--ink-line);
-    font-family: var(--font-display); font-size: 11px; color: var(--text-on-dark-dim);
+  .site-title { font-size: 18px; font-weight: 600; color: var(--text); }
+  .site-sub { font-size: 13px; color: var(--text2); }
+  /* Tabs */
+  .tab-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 24px;
+    gap: 0;
+    overflow-x: auto;
   }
-  .fastq-reel .bar .dots { display:flex; gap:6px; }
-  .fastq-reel .bar .dots span { width:8px; height:8px; border-radius:50%; }
-  .reel-body { padding: 18px 18px 20px; font-family: var(--font-display); font-size: 12.5px; line-height: 1.95; }
-  .reel-line { white-space: pre; opacity: 0.92; }
-  .reel-line.header { color: var(--text-on-dark-dim); }
-  .reel-qual span { display:inline-block; }
-
-  /* Module index */
-  .module-row {
-    display: grid; grid-template-columns: 64px 1fr auto;
-    gap: 22px; align-items: center;
-    padding: 26px 26px;
-    border: 1px solid #E4DDCB;
-    border-radius: var(--radius);
-    background: #fff;
-    text-decoration: none;
-    color: var(--text-on-paper);
-    transition: border-color 0.15s, transform 0.15s, box-shadow .15s;
+  .tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 14px;
+    font-family: var(--sans);
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-icon { margin-right: 6px; }
+  /* Panels */
+  .tab-panel { display: none; padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
+  .tab-panel.active { display: block; }
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .section-desc { color: var(--text2); margin-bottom: 24px; line-height: 1.7; }
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
     margin-bottom: 16px;
   }
-  .module-row:hover { border-color: var(--ink); transform: translateX(4px); box-shadow: 0 8px 24px rgba(20,20,20,0.06); }
-  .module-num {
-    font-family: var(--font-display); font-weight: 800; font-size: 28px;
-    color: var(--paper-dim); -webkit-text-stroke: 1.5px var(--text-on-paper-dim);
-    grid-area: num;
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .card-body { color: var(--text2); font-size: 14px; line-height: 1.7; }
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  /* SVG diagrams */
+  .diagram-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    overflow-x: auto;
   }
-  .module-row .module-title { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin-bottom: 6px; grid-area: title; }
-  .module-row .module-desc { color: var(--text-on-paper-dim); font-size: 14.5px; max-width: 560px; grid-area: desc; }
-  .module-arrow { font-family: var(--font-display); font-size: 22px; color: var(--text-on-paper-dim); transition: transform .15s, color .15s; }
-  .module-row:hover .module-arrow { transform: translateX(4px); color: var(--base-A) }
+  .diagram-title {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  svg text { font-family: var(--sans); }
+  /* Code block */
+  .code-window {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .code-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .code-dot.red { background: #ff5f57; }
+  .code-dot.amber { background: #febc2e; }
+  .code-dot.green { background: #28c840; }
+  .code-filename { font-size: 12px; color: var(--text2); margin-left: 8px; }
+  .code-body { padding: 16px; overflow-x: auto; }
+  .code-body pre { line-height: 1.8; }
+  .c-comment { color: #6e7681; }
+  .c-cmd { color: var(--accent2); }
+  .c-flag { color: var(--amber2); }
+  .c-path { color: var(--green); }
+  .c-num { color: var(--purple); }
+  .c-str { color: var(--pink); }
+  .c-ok { color: var(--green); }
+  .c-warn { color: var(--amber); }
+  /* FASTQ display */
+  .fastq-block {
+    background: #010409;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 2;
+    overflow-x: auto;
+    margin-bottom: 12px;
+  }
+  .fq-header { color: var(--accent); }
+  .fq-seq { color: var(--green); }
+  .fq-plus { color: var(--text3); }
+  .fq-qual { color: var(--amber2); }
+  .fq-label {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-family: var(--sans);
+    font-weight: 600;
+  }
+  .lbl-blue { background: #1f6feb; color: #cae8ff; }
+  .lbl-green { background: #1a7f37; color: #acf2bd; }
+  .lbl-amber { background: #9e6a03; color: #f8e3a1; }
+  .lbl-gray { background: var(--surface3); color: var(--text2); }
+  /* IGV-style viewer */
+  .igv-wrap {
+    background: #1c2333;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .igv-toolbar {
+    background: #2d333b;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .igv-btn {
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--text2);
+    padding: 3px 10px;
+    font-size: 12px;
+    cursor: default;
+  }
+  .igv-loc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+    background: #010409;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 10px;
+  }
+  .igv-body { padding: 0; }
+  .igv-track {
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: stretch;
+    min-height: 28px;
+  }
+  .igv-track-label {
+    width: 120px;
+    min-width: 120px;
+    background: #2d333b;
+    border-right: 1px solid var(--border);
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+  }
+  .igv-track-content { flex: 1; position: relative; overflow: hidden; }
+  /* Badges */
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-right: 6px;
+  }
+  .badge-blue { background: #1f6feb; color: #cae8ff; }
+  .badge-green { background: #1a7f37; color: #acf2bd; }
+  .badge-amber { background: #9e6a03; color: #f8e3a1; }
+  .badge-red { background: #b91c1c; color: #fecaca; }
+  .badge-purple { background: #6e40c9; color: #e2d9f3; }
+  .badge-gray { background: var(--surface3); color: var(--text2); }
+  /* Info box */
+  .infobox {
+    border-left: 3px solid var(--accent);
+    background: rgba(31,111,235,0.08);
+    padding: 14px 16px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text2);
+  }
+  .infobox.green { border-color: var(--green); background: rgba(63,185,80,0.08); }
+  .infobox.amber { border-color: var(--amber); background: rgba(210,153,34,0.08); }
+  .infobox.red { border-color: var(--red); background: rgba(248,81,73,0.08); }
+  .infobox-title { font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  /* Pipeline steps */
+  .pipeline-step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+  .pipeline-step::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 44px;
+    bottom: -24px;
+    width: 2px;
+    background: var(--border);
+  }
+  .pipeline-step:last-child::before { display: none; }
+  .step-num {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: var(--accent2);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    z-index: 1;
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .step-desc { color: var(--text2); font-size: 14px; }
+  /* Variant table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: var(--surface2);
+    color: var(--text2);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  tr:hover td { background: var(--surface2); }
+  .mut-del { color: var(--red); }
+  .mut-snv { color: var(--amber2); }
+  .mut-ins { color: var(--purple); }
+  /* divider */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  /* Tag */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px;
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  /* Highlight seq */
+  .seq-a { color: #79c0ff; }
+  .seq-t { color: #ff7b72; }
+  .seq-g { color: #3fb950; }
+  .seq-c { color: #d2a8ff; }
+  .seq-n { color: #6e7681; }
+  /* Quality bar */
+  .qual-bar-wrap { display: flex; gap: 2px; align-items: flex-end; height: 40px; margin: 8px 0; }
+  .qual-bar { width: 14px; border-radius: 2px 2px 0 0; }
+  /* Responsive */
   @media (max-width: 640px) {
-    .module-row { grid-template-columns: 40px 1fr; grid-template-areas: "num title" "num desc"; }
-    .module-arrow { display: none; }
+    .tab-panel { padding: 20px 12px; }
+    .igv-track-label { width: 80px; min-width: 80px; }
   }
-
-  .timeline-strip {
-    display: flex; border-radius: var(--radius); overflow: hidden; height: 14px; margin: 26px 0 10px;
+  /* Animation */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .tab-panel.active { animation: fadeIn 0.25s ease; }
+  /* scroll hint */
+  .scroll-hint { font-size: 12px; color: var(--text3); margin-bottom: 8px; }
+  /* Flow arrow */
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
   }
-  .timeline-strip div { height: 100%; }
-  .timeline-labels { display:flex; justify-content: space-between; font-family: var(--font-display); font-size: 11.5px; color: var(--text-on-dark-dim); }
-
-  .stat-strip { display:flex; gap: 0; border-top: 1px solid var(--ink-line); border-bottom: 1px solid var(--ink-line); }
-  .stat-cell { flex:1; padding: 22px 26px; border-right: 1px solid var(--ink-line); }
-  .stat-cell:last-child { border-right: none; }
-  .stat-cell .num { font-family: var(--font-display); font-weight: 800; font-size: 26px; color: var(--base-A); }
-  .stat-cell .lab { font-size: 12.5px; color: var(--text-on-dark-dim); margin-top: 4px; }
-  @media (max-width: 760px){ .stat-strip { flex-wrap: wrap; } .stat-cell { flex: 1 1 50%; border-bottom: 1px solid var(--ink-line); }}
+  .flow-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .flow-arrow {
+    color: var(--text3);
+    padding: 0 6px;
+    font-size: 18px;
+  }
 </style>
 </head>
 <body>
 
 <header class="site-header">
-  <div class="site-header-inner">
-    <a href="index.html" class="brand"><span class="prompt">&gt;</span> NGS<span class="dim">_course.seq</span></a>
-    <nav class="site-nav">
-      <a href="index.html" class="current">개요</a>
-      <a href="module1-genome-gene.html">1 · 유전체/유전자</a>
-      <a href="module2-sanger-ngs.html">2 · 시퀀싱 원리</a>
-      <a href="module3-sfts-virus.html">3 · SFTS 실습</a>
-    </nav>
+  <span class="logo-dna">🧬</span>
+  <div>
+    <div class="site-title">NGS 유전체 분석 교육</div>
+    <div class="site-sub">차세대 염기서열분석 이론부터 임상 적용까지</div>
   </div>
 </header>
 
-<section class="hero">
-  <div class="hero-inner">
-    <div>
-      <p class="eyebrow" style="color:var(--text-on-dark-dim)">대학 학부생 입문~중상급 · 30분 수업</p>
-      <h1>차세대 염기서열분석,<br><span class="hl">NGS</span>를 읽는 법을 배웁니다.</h1>
-      <p class="lede">DNA가 무엇인지부터, 기계가 어떻게 그것을 문자로 바꾸는지, 그리고 그 문자가 실제 환자 진단에 어떻게 쓰이는지까지 — 세 개의 모듈로 잇는 한 줄의 이야기입니다.</p>
-      <div class="hero-meta">
-        <span class="pill">🧬 General Biology Recap</span>
-        <span class="pill">🖥️ Interactive FASTQ / SAM Lab</span>
-        <span class="pill">🦠 SFTS Virus Case Study</span>
-      </div>
+<nav class="tab-bar" role="tablist">
+  <button class="tab-btn active" onclick="showTab('tab1',this)" role="tab">
+    <span class="tab-icon">🧬</span>유전체 구조 &amp; NGS 원리
+  </button>
+  <button class="tab-btn" onclick="showTab('tab2',this)" role="tab">
+    <span class="tab-icon">⚙️</span>분석 파이프라인 실습
+  </button>
+  <button class="tab-btn" onclick="showTab('tab3',this)" role="tab">
+    <span class="tab-icon">🏥</span>임상 적용 사례
+  </button>
+</nav>
+
+<!-- =================== TAB 1: 유전체 구조 & NGS =================== -->
+<section id="tab1" class="tab-panel active">
+
+  <div class="section">
+    <div class="section-label">Module 01</div>
+    <div class="section-title">인간 유전체의 구조</div>
+    <div class="section-desc">인간 유전체는 약 30억 쌍의 염기로 이루어진 이중 나선 DNA로, 23쌍의 염색체에 나뉘어 세포핵 안에 담겨 있습니다. 이 DNA를 한 줄로 펼치면 약 2미터 길이지만, 히스톤 단백질에 감겨 압축되어 핵 속에 들어갑니다.</div>
+
+    <!-- Genome hierarchy diagram -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 1. 유전체 구조의 계층 — 세포핵 → 염색체 → DNA 이중나선 → 유전자</div>
+      <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:900px;min-width:500px">
+        <!-- Cell -->
+        <ellipse cx="80" cy="160" rx="65" ry="75" fill="#1c2333" stroke="#484f58" stroke-width="1.5"/>
+        <ellipse cx="80" cy="160" rx="30" ry="35" fill="#21262d" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="80" y="255" text-anchor="middle" fill="#8b949e" font-size="12">세포</text>
+        <text x="80" y="270" text-anchor="middle" fill="#8b949e" font-size="11">(핵 = 파란 점선)</text>
+
+        <!-- Arrow 1 -->
+        <line x1="150" y1="160" x2="185" y2="160" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#484f58"/></marker></defs>
+
+        <!-- Chromosome -->
+        <g transform="translate(200,100)">
+          <path d="M20,30 Q0,60 20,90 Q40,120 20,130 Q0,120 20,90 Q40,60 20,30 Z" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+          <path d="M35,30 Q55,60 35,90 Q15,120 35,130 Q55,120 35,90 Q15,60 35,30 Z" fill="#1f6feb" stroke="#58a6ff" stroke-width="1.5"/>
+          <line x1="20" y1="90" x2="35" y2="90" stroke="#58a6ff" stroke-width="2"/>
+        </g>
+        <text x="227" y="255" text-anchor="middle" fill="#8b949e" font-size="12">염색체</text>
+        <text x="227" y="270" text-anchor="middle" fill="#8b949e" font-size="11">(46개 = 23쌍)</text>
+
+        <!-- Arrow 2 -->
+        <line x1="275" y1="160" x2="310" y2="160" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- DNA double helix simplified -->
+        <g transform="translate(320,80)">
+          <!-- Backbone left -->
+          <path d="M10,0 C30,15 -5,30 15,45 C35,60 0,75 20,90 C40,105 5,120 25,135 C45,150 10,165 30,180" fill="none" stroke="#3fb950" stroke-width="2.5"/>
+          <!-- Backbone right -->
+          <path d="M50,0 C30,15 65,30 45,45 C25,60 60,75 40,90 C20,105 55,120 35,135 C15,150 50,165 30,180" fill="none" stroke="#ff7b72" stroke-width="2.5"/>
+          <!-- Base pairs -->
+          <line x1="18" y1="20" x2="44" y2="20" stroke="#6e7681" stroke-width="1.5"/>
+          <line x1="8" y1="45" x2="50" y2="45" stroke="#6e7681" stroke-width="1.5"/>
+          <line x1="15" y1="70" x2="46" y2="70" stroke="#6e7681" stroke-width="1.5"/>
+          <line x1="22" y1="95" x2="40" y2="95" stroke="#6e7681" stroke-width="1.5"/>
+          <line x1="16" y1="120" x2="46" y2="120" stroke="#6e7681" stroke-width="1.5"/>
+          <line x1="26" y1="147" x2="36" y2="147" stroke="#6e7681" stroke-width="1.5"/>
+          <line x1="24" y1="170" x2="38" y2="170" stroke="#6e7681" stroke-width="1.5"/>
+          <!-- Labels -->
+          <text x="-5" y="95" fill="#3fb950" font-size="10">5'</text>
+          <text x="55" y="95" fill="#ff7b72" font-size="10">3'</text>
+        </g>
+        <text x="362" y="285" text-anchor="middle" fill="#8b949e" font-size="12">DNA 이중나선</text>
+        <text x="362" y="300" text-anchor="middle" fill="#8b949e" font-size="11">(염기쌍 A-T, G-C)</text>
+
+        <!-- Arrow 3 -->
+        <line x1="415" y1="160" x2="450" y2="160" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr)"/>
+
+        <!-- Gene region -->
+        <g transform="translate(460,95)">
+          <rect x="0" y="0" width="180" height="130" rx="6" fill="#0d1117" stroke="#484f58" stroke-width="1"/>
+          <!-- Exon/Intron blocks -->
+          <rect x="10" y="15" width="30" height="22" rx="3" fill="#1f6feb"/>
+          <text x="25" y="30" text-anchor="middle" fill="#cae8ff" font-size="10" font-weight="600">엑손1</text>
+          <rect x="48" y="15" width="25" height="22" rx="3" fill="#30363d" stroke="#484f58"/>
+          <text x="60" y="30" text-anchor="middle" fill="#6e7681" font-size="9">인트론</text>
+          <rect x="81" y="15" width="30" height="22" rx="3" fill="#1f6feb"/>
+          <text x="96" y="30" text-anchor="middle" fill="#cae8ff" font-size="10" font-weight="600">엑손2</text>
+          <rect x="119" y="15" width="25" height="22" rx="3" fill="#30363d" stroke="#484f58"/>
+          <text x="131" y="30" text-anchor="middle" fill="#6e7681" font-size="9">인트론</text>
+          <!-- Arrow -->
+          <line x1="10" y1="50" x2="170" y2="50" stroke="#d29922" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="90" y="48" text-anchor="middle" fill="#d29922" font-size="10">전사 방향 →</text>
+          <!-- mRNA -->
+          <rect x="10" y="62" width="30" height="18" rx="2" fill="#9e6a03"/>
+          <rect x="48" y="62" width="30" height="18" rx="2" fill="#9e6a03"/>
+          <rect x="86" y="62" width="30" height="18" rx="2" fill="#9e6a03"/>
+          <text x="95" y="75" text-anchor="middle" fill="#f8e3a1" font-size="10">mRNA (스플라이싱)</text>
+          <!-- Protein -->
+          <text x="10" y="105" fill="#8b949e" font-size="10">→ 번역</text>
+          <circle cx="60" cy="100" r="8" fill="#bc8cff" opacity="0.8"/>
+          <circle cx="74" cy="98" r="7" fill="#bc8cff" opacity="0.7"/>
+          <circle cx="87" cy="103" r="9" fill="#bc8cff" opacity="0.9"/>
+          <circle cx="101" cy="98" r="7" fill="#bc8cff" opacity="0.7"/>
+          <text x="90" y="120" text-anchor="middle" fill="#8b949e" font-size="10">단백질</text>
+        </g>
+        <text x="550" y="245" text-anchor="middle" fill="#8b949e" font-size="12">유전자 구조</text>
+        <text x="550" y="260" text-anchor="middle" fill="#8b949e" font-size="11">(엑손 + 인트론)</text>
+
+        <!-- Genome stats -->
+        <g transform="translate(665,80)">
+          <rect x="0" y="0" width="210" height="170" rx="6" fill="#161b22" stroke="#30363d"/>
+          <text x="105" y="20" text-anchor="middle" fill="#8b949e" font-size="11" font-weight="600">인간 유전체 요약</text>
+          <line x1="10" y1="26" x2="200" y2="26" stroke="#30363d"/>
+          <text x="10" y="45" fill="#6e7681" font-size="11">총 염기쌍</text>
+          <text x="200" y="45" text-anchor="end" fill="#58a6ff" font-size="12" font-weight="600">~3.2 Gb</text>
+          <text x="10" y="65" fill="#6e7681" font-size="11">단백질 코딩 유전자</text>
+          <text x="200" y="65" text-anchor="end" fill="#3fb950" font-size="12" font-weight="600">~20,000개</text>
+          <text x="10" y="85" fill="#6e7681" font-size="11">엑솜 비율</text>
+          <text x="200" y="85" text-anchor="end" fill="#d29922" font-size="12" font-weight="600">~1.5%</text>
+          <text x="10" y="105" fill="#6e7681" font-size="11">반복서열 비율</text>
+          <text x="200" y="105" text-anchor="end" fill="#ff7b72" font-size="12" font-weight="600">~50%</text>
+          <text x="10" y="125" fill="#6e7681" font-size="11">염색체 수</text>
+          <text x="200" y="125" text-anchor="end" fill="#bc8cff" font-size="12" font-weight="600">46 (23쌍)</text>
+          <text x="10" y="145" fill="#6e7681" font-size="11">미토콘드리아 DNA</text>
+          <text x="200" y="145" text-anchor="end" fill="#58a6ff" font-size="12" font-weight="600">~16.5 kb</text>
+          <text x="10" y="163" fill="#6e7681" font-size="11">평균 유전자 크기</text>
+          <text x="200" y="163" text-anchor="end" fill="#8b949e" font-size="12">~27 kb</text>
+        </g>
+      </svg>
     </div>
 
-    <div class="fastq-reel" aria-hidden="true">
-      <div class="bar">
-        <span>live_run.fastq</span>
-        <span class="dots"><span style="background:var(--base-T)"></span><span style="background:var(--base-G)"></span><span style="background:var(--base-A)"></span></span>
-      </div>
-      <div class="reel-body" id="reelBody"></div>
-    </div>
-  </div>
-
-  <div class="wrap">
-    <div class="stat-strip">
-      <div class="stat-cell"><div class="num">10분</div><div class="lab">Module 1 · 유전체와 유전자</div></div>
-      <div class="stat-cell"><div class="num">10분</div><div class="lab">Module 2 · Sanger vs NGS 원리</div></div>
-      <div class="stat-cell"><div class="num">10분</div><div class="lab">Module 3 · SFTS 바이러스 실습</div></div>
-    </div>
-  </div>
-</section>
-
-<section class="section section-paper">
-  <div class="wrap">
-    <p class="eyebrow">course map</p>
-    <h2 class="mb-0">세 모듈, 하나의 흐름</h2>
-    <p class="lede" style="margin-top:14px;">유전체 → 시퀀싱 기술 → 실제 바이러스 샘플 분석 순서로 읽으면 30분 수업이 완성됩니다. 각 모듈은 독립적으로도 학습할 수 있습니다.</p>
-    <div class="kicker-rule"><div class="line"></div></div>
-
-    <a class="module-row reveal" href="module1-genome-gene.html">
-      <div class="module-num">01</div>
-      <div>
-        <div class="module-title">유전체와 유전자 — 일반생물학 개론</div>
-        <div class="module-desc">DNA의 구조, 유전체·염색체·유전자의 관계, 전사와 번역까지. NGS를 이해하기 위해 필요한 최소한의 분자생물학을 빠르게 복습합니다.</div>
-      </div>
-      <div class="module-arrow">→</div>
-    </a>
-
-    <a class="module-row reveal" href="module2-sanger-ngs.html">
-      <div class="module-num">02</div>
-      <div>
-        <div class="module-title">Sanger부터 NGS까지 — 시퀀싱 원리와 분석</div>
-        <div class="module-desc">Sanger 시퀀싱의 원리, Illumina·ONT·PacBio 3대 NGS 플랫폼 비교, 그리고 FASTQ → SAM/BAM으로 이어지는 분석 파이프라인을 직접 조작해보는 인터랙티브 실습.</div>
-      </div>
-      <div class="module-arrow">→</div>
-    </a>
-
-    <a class="module-row reveal" href="module3-sfts-virus.html">
-      <div class="module-num">03</div>
-      <div>
-        <div class="module-title">SFTS 바이러스 시퀀싱 실습 — 중개의학적 의미</div>
-        <div class="module-desc">중증열성혈소판감소증후군(SFTS) 바이러스의 생활사와 분절 유전체 구조, 그리고 viremia 환자 샘플을 시퀀싱해야 하는 임상적·공공보건적 이유를 다룹니다.</div>
-      </div>
-      <div class="module-arrow">→</div>
-    </a>
-  </div>
-</section>
-
-<section class="section section-dark">
-  <div class="wrap">
-    <p class="eyebrow">how to use</p>
-    <h2>이 수업은 이렇게 설계되었습니다</h2>
-    <div class="kicker-rule"><div class="line"></div></div>
-    <div class="grid grid-3">
-      <div class="card-dark reveal">
-        <h3 style="color:var(--base-A)">01 읽기</h3>
-        <p class="text-dim" style="margin-top:10px;">각 모듈은 핵심 개념을 짧은 문단과 다이어그램으로 설명합니다. 암기보다 "왜 이 기술이 필요했는가"에 초점을 둡니다.</p>
-      </div>
-      <div class="card-dark reveal">
-        <h3 style="color:var(--base-T)">02 조작하기</h3>
-        <p class="text-dim" style="margin-top:10px;">Module 2의 미니 콘솔에서 가상의 FASTQ read를 직접 정렬하고, quality score를 색으로 확인하며 SAM/BAM의 의미를 체득합니다.</p>
-      </div>
-      <div class="card-dark reveal">
-        <h3 style="color:var(--base-G)">03 적용하기</h3>
-        <p class="text-dim" style="margin-top:10px;">Module 3에서 실제 임상 시나리오(SFTS 환자 viremia 샘플)에 그 개념을 적용해, "왜 시퀀싱이 진단에 필요한가"라는 질문에 답합니다.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section section-paper-dim">
-  <div class="wrap">
-    <p class="eyebrow">for instructors</p>
-    <h2 class="mb-0">강의자를 위한 안내</h2>
-    <p class="lede" style="margin-top:14px; margin-bottom:28px;">전체 화면 공유나 학생 개별 노트북 접속 모두 가능합니다. 인터넷 연결 없이도 핵심 콘텐츠는 작동하도록 외부 의존성을 최소화했습니다.</p>
-    <div class="grid grid-2">
+    <div class="grid-3">
       <div class="card">
-        <h3>⏱ 30분 진행 제안</h3>
-        <ul style="padding-left:18px; color:var(--text-on-paper-dim); line-height:1.9;">
-          <li>0–10분 — Module 1 빠르게 복습 (이미 배운 학생이 많다면 5분으로 축소)</li>
-          <li>10–20분 — Module 2 원리 설명 + 인터랙티브 콘솔 직접 실습</li>
-          <li>20–30분 — Module 3 SFTS 사례로 "왜"에 대한 답 제시, Q&A</li>
-        </ul>
+        <div class="card-title">🔵 엑솜 (Exome)</div>
+        <div class="card-body">단백질을 코딩하는 엑손 부분으로, 전체 유전체의 약 1.5%를 차지합니다. 질병 관련 변이의 약 85%가 여기서 발생하여 임상적으로 가장 중요한 영역입니다.</div>
       </div>
       <div class="card">
-        <h3>🌐 GitHub Pages 배포</h3>
-        <p class="text-dim" style="margin-bottom:10px;">이 폴더를 그대로 저장소에 올리고 GitHub Pages를 활성화하면 별도 빌드 없이 바로 실행됩니다.</p>
-        <div class="console" style="margin-top:14px;">
-          <div class="console-bar"><span class="dot" style="background:var(--base-T)"></span><span class="dot" style="background:var(--base-G)"></span><span class="dot" style="background:var(--base-A)"></span><span style="margin-left:6px;">terminal</span></div>
-          <div class="console-body">git add .
-git commit -m "NGS course site"
-git push origin main
-<span style="color:var(--text-on-dark-dim)"># Settings → Pages → Branch: main → / (root)</span></div>
+        <div class="card-title">🟡 인트론 &amp; 비코딩 DNA</div>
+        <div class="card-body">전체 유전체의 약 98.5%를 차지하며, 유전자 발현 조절, RNA 스플라이싱, 염색체 구조 유지 등 다양한 기능을 합니다. GWAS 연구에서 중요성이 증가하고 있습니다.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🟣 변이의 종류</div>
+        <div class="card-body">SNV(단일 염기 변이), 소규모 삽입/결실(indel), 구조적 변이(SV), 복제수 변이(CNV) 등 다양한 형태로 발생합니다. 이들을 정확히 탐지하는 것이 NGS의 핵심 목표입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="section">
+    <div class="section-label">Module 02</div>
+    <div class="section-title">차세대 염기서열분석 (NGS) 원리</div>
+    <div class="section-desc">NGS는 수백만~수십억 개의 짧은 DNA 조각을 동시에 읽어내는 기술입니다. 기존 생거 시퀀싱(1세대)의 한계를 극복하여 전체 유전체를 빠르게, 저렴하게 분석할 수 있게 되었습니다.</div>
+
+    <!-- Illumina SBS -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 2. Illumina 합성 중 염기서열분석(SBS) 원리</div>
+      <svg viewBox="0 0 860 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:860px;min-width:500px">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#484f58"/></marker>
+        </defs>
+
+        <!-- Step labels -->
+        <text x="20" y="30" fill="#58a6ff" font-size="13" font-weight="600">① 라이브러리 제조</text>
+        <text x="200" y="30" fill="#58a6ff" font-size="13" font-weight="600">② 클러스터 생성</text>
+        <text x="430" y="30" fill="#58a6ff" font-size="13" font-weight="600">③ 시퀀싱 (SBS)</text>
+        <text x="660" y="30" fill="#58a6ff" font-size="13" font-weight="600">④ 데이터 출력</text>
+
+        <!-- Step 1: Library prep -->
+        <g transform="translate(15,45)">
+          <!-- Genomic DNA -->
+          <rect x="0" y="10" width="160" height="12" rx="3" fill="#30363d" stroke="#484f58"/>
+          <text x="80" y="20" text-anchor="middle" fill="#8b949e" font-size="10">Genomic DNA</text>
+          <!-- Fragmentation arrow -->
+          <text x="80" y="40" text-anchor="middle" fill="#6e7681" font-size="10">↓ 초음파 단편화</text>
+          <!-- Fragments -->
+          <rect x="0" y="48" width="40" height="10" rx="2" fill="#1f6feb"/>
+          <rect x="48" y="48" width="50" height="10" rx="2" fill="#1f6feb"/>
+          <rect x="106" y="48" width="54" height="10" rx="2" fill="#1f6feb"/>
+          <!-- Adaptor arrow -->
+          <text x="80" y="73" text-anchor="middle" fill="#6e7681" font-size="10">↓ 어댑터 결합</text>
+          <!-- Library -->
+          <rect x="0" y="80" width="6" height="10" rx="1" fill="#d29922"/>
+          <rect x="6" y="80" width="38" height="10" rx="1" fill="#1f6feb"/>
+          <rect x="44" y="80" width="6" height="10" rx="1" fill="#d29922"/>
+          <rect x="55" y="80" width="6" height="10" rx="1" fill="#d29922"/>
+          <rect x="61" y="80" width="48" height="10" rx="1" fill="#1f6feb"/>
+          <rect x="109" y="80" width="6" height="10" rx="1" fill="#d29922"/>
+          <text x="80" y="106" text-anchor="middle" fill="#8b949e" font-size="10">라이브러리 단편</text>
+          <text x="80" y="118" text-anchor="middle" fill="#d29922" font-size="9">(노랑=어댑터, 파랑=삽입체)</text>
+        </g>
+
+        <!-- Arrow 1→2 -->
+        <line x1="182" y1="150" x2="198" y2="150" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+        <!-- Step 2: Cluster generation (bridge amplification) -->
+        <g transform="translate(205,45)">
+          <!-- Flow cell surface -->
+          <rect x="0" y="5" width="205" height="155" rx="6" fill="#0d1117" stroke="#30363d"/>
+          <text x="102" y="22" text-anchor="middle" fill="#6e7681" font-size="10">플로우 셀 표면</text>
+          <!-- Oligos on surface -->
+          <line x1="15" y1="40" x2="15" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="35" y1="40" x2="35" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="55" y1="40" x2="55" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="75" y1="40" x2="75" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="95" y1="40" x2="95" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="115" y1="40" x2="115" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="135" y1="40" x2="135" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="155" y1="40" x2="155" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="175" y1="40" x2="175" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <line x1="195" y1="40" x2="195" y2="55" stroke="#484f58" stroke-width="1.5"/>
+          <!-- Cluster circles (bridge amp result) -->
+          <circle cx="40" cy="90" r="16" fill="#1f3a5f" stroke="#1f6feb" stroke-width="1.5"/>
+          <text x="40" y="94" text-anchor="middle" fill="#79c0ff" font-size="9">클러스터</text>
+          <circle cx="85" cy="88" r="18" fill="#1f3a5f" stroke="#1f6feb" stroke-width="1.5"/>
+          <text x="85" y="92" text-anchor="middle" fill="#79c0ff" font-size="9">클러스터</text>
+          <circle cx="135" cy="93" r="14" fill="#1f3a5f" stroke="#1f6feb" stroke-width="1.5"/>
+          <text x="135" y="97" text-anchor="middle" fill="#79c0ff" font-size="9">클러스터</text>
+          <circle cx="175" cy="87" r="17" fill="#1f3a5f" stroke="#1f6feb" stroke-width="1.5"/>
+          <text x="175" y="91" text-anchor="middle" fill="#79c0ff" font-size="9">클러스터</text>
+          <text x="102" y="130" text-anchor="middle" fill="#8b949e" font-size="10">브리지 증폭 → 각 클러스터</text>
+          <text x="102" y="143" text-anchor="middle" fill="#8b949e" font-size="9">= 동일 서열 ~1,000 복사본</text>
+        </g>
+
+        <!-- Arrow 2→3 -->
+        <line x1="418" y1="150" x2="432" y2="150" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+        <!-- Step 3: SBS cycle -->
+        <g transform="translate(438,45)">
+          <rect x="0" y="5" width="210" height="230" rx="6" fill="#0d1117" stroke="#30363d"/>
+          <text x="105" y="22" text-anchor="middle" fill="#6e7681" font-size="10">합성 중 시퀀싱 (SBS)</text>
+          <!-- Template strand -->
+          <text x="10" y="42" fill="#8b949e" font-size="10">주형 DNA:</text>
+          <text x="85" y="42" fill="#3fb950" font-size="11" font-family="'Courier New',monospace">3'-ATCGCTA-5'</text>
+          <!-- Cycle 1 -->
+          <text x="10" y="65" fill="#6e7681" font-size="10">사이클 1 — A 첨가:</text>
+          <text x="85" y="65" fill="#79c0ff" font-size="11" font-family="'Courier New',monospace">5'-T</text>
+          <circle cx="162" cy="60" r="8" fill="#238636" stroke="#3fb950"/>
+          <text x="162" y="64" text-anchor="middle" fill="#acf2bd" font-size="8">dCTP*</text>
+          <text x="10" y="80" fill="#6e7681" font-size="9">→ 형광 방출 (초록)</text>
+          <rect x="85" y="72" width="12" height="12" rx="2" fill="#238636"/>
+          <!-- Cycle 2 -->
+          <text x="10" y="105" fill="#6e7681" font-size="10">사이클 2 — T 첨가:</text>
+          <text x="85" y="105" fill="#79c0ff" font-size="11" font-family="'Courier New',monospace">5'-TA</text>
+          <circle cx="162" cy="100" r="8" fill="#b91c1c" stroke="#f85149"/>
+          <text x="162" y="104" text-anchor="middle" fill="#fecaca" font-size="8">dATP*</text>
+          <text x="10" y="120" fill="#6e7681" font-size="9">→ 형광 방출 (빨강)</text>
+          <rect x="85" y="112" width="12" height="12" rx="2" fill="#b91c1c"/>
+          <rect x="99" y="112" width="12" height="12" rx="2" fill="#238636"/>
+          <!-- Cycle 3 -->
+          <text x="10" y="145" fill="#6e7681" font-size="10">사이클 3 — G 첨가:</text>
+          <text x="85" y="145" fill="#79c0ff" font-size="11" font-family="'Courier New',monospace">5'-TAG</text>
+          <text x="10" y="160" fill="#6e7681" font-size="9">→ 형광 방출 (파랑)</text>
+          <rect x="85" y="152" width="12" height="12" rx="2" fill="#b91c1c"/>
+          <rect x="99" y="152" width="12" height="12" rx="2" fill="#238636"/>
+          <rect x="113" y="152" width="12" height="12" rx="2" fill="#1f6feb"/>
+          <!-- Blockers removed -->
+          <text x="10" y="185" fill="#d29922" font-size="10">※ 사이클마다:</text>
+          <text x="10" y="198" fill="#6e7681" font-size="9">1. 형광 차단기 제거</text>
+          <text x="10" y="211" fill="#6e7681" font-size="9">2. 이미지 촬영</text>
+          <text x="10" y="224" fill="#6e7681" font-size="9">3. 다음 dNTP 주입</text>
+        </g>
+
+        <!-- Arrow 3→4 -->
+        <line x1="655" y1="150" x2="668" y2="150" stroke="#484f58" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+        <!-- Step 4: Data output -->
+        <g transform="translate(675,45)">
+          <rect x="0" y="5" width="175" height="230" rx="6" fill="#0d1117" stroke="#30363d"/>
+          <text x="87" y="22" text-anchor="middle" fill="#6e7681" font-size="10">출력 데이터</text>
+          <!-- FASTQ file -->
+          <rect x="8" y="30" width="159" height="110" rx="4" fill="#161b22" stroke="#30363d"/>
+          <text x="14" y="46" fill="#58a6ff" font-size="10" font-family="'Courier New',monospace">@SRR001_1</text>
+          <text x="14" y="60" fill="#3fb950" font-size="10" font-family="'Courier New',monospace">TAGCGTA...</text>
+          <text x="14" y="74" fill="#6e7681" font-size="10" font-family="'Courier New',monospace">+</text>
+          <text x="14" y="88" fill="#d29922" font-size="10" font-family="'Courier New',monospace">IIHHGGF...</text>
+          <text x="14" y="104" fill="#58a6ff" font-size="10" font-family="'Courier New',monospace">@SRR001_2</text>
+          <text x="14" y="118" fill="#3fb950" font-size="10" font-family="'Courier New',monospace">ATCGCAT...</text>
+          <text x="87" y="153" text-anchor="middle" fill="#6e7681" font-size="10">FASTQ 포맷</text>
+          <!-- Stats -->
+          <text x="8" y="175" fill="#8b949e" font-size="10">리드 길이: 150 bp</text>
+          <text x="8" y="190" fill="#8b949e" font-size="10">처리량: ~600 Gb/run</text>
+          <text x="8" y="205" fill="#8b949e" font-size="10">에러율: ~0.1–0.3%</text>
+          <text x="8" y="220" fill="#8b949e" font-size="10">기기: NovaSeq X Plus</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- NGS platform comparison -->
+    <div class="section-label" style="margin-top:32px">주요 NGS 플랫폼 비교</div>
+
+    <!-- Platform 1: Illumina -->
+    <div class="diagram-wrap" style="margin-bottom:16px">
+      <div class="diagram-title">그림 3. 3대 NGS 플랫폼 비교 — Illumina SBS vs PacBio SMRT vs ONT 나노포어</div>
+      <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:860px;min-width:600px">
+        <!-- Illumina -->
+        <g transform="translate(20,20)">
+          <rect x="0" y="0" width="265" height="260" rx="8" fill="#161b22" stroke="#1f6feb" stroke-width="1.5"/>
+          <rect x="0" y="0" width="265" height="36" rx="8" fill="#1f3a5f"/>
+          <rect x="0" y="28" width="265" height="8" fill="#1f3a5f"/>
+          <text x="132" y="24" text-anchor="middle" fill="#79c0ff" font-size="14" font-weight="600">Illumina SBS</text>
+          <!-- Diagram: cluster on flow cell -->
+          <circle cx="80" cy="90" r="30" fill="#0d1117" stroke="#1f6feb" stroke-width="1.5"/>
+          <circle cx="80" cy="90" r="18" fill="#1f3a5f" stroke="#58a6ff" stroke-width="1"/>
+          <text x="80" y="84" text-anchor="middle" fill="#79c0ff" font-size="9">클러스터</text>
+          <text x="80" y="95" text-anchor="middle" fill="#79c0ff" font-size="9">증폭</text>
+          <!-- Camera icon -->
+          <rect x="120" y="68" width="40" height="30" rx="4" fill="#30363d" stroke="#484f58"/>
+          <circle cx="140" cy="83" r="8" fill="#1f6feb"/>
+          <circle cx="140" cy="83" r="4" fill="#79c0ff"/>
+          <text x="140" y="110" text-anchor="middle" fill="#6e7681" font-size="9">광학 검출</text>
+          <line x1="113" y1="83" x2="120" y2="83" stroke="#484f58" stroke-dasharray="2,2"/>
+          <!-- Specs -->
+          <text x="10" y="140" fill="#6e7681" font-size="11">리드 길이</text>
+          <text x="255" y="140" text-anchor="end" fill="#58a6ff" font-size="12">150 bp (PE)</text>
+          <text x="10" y="158" fill="#6e7681" font-size="11">정확도</text>
+          <text x="255" y="158" text-anchor="end" fill="#3fb950" font-size="12">99.9%+</text>
+          <text x="10" y="176" fill="#6e7681" font-size="11">처리량/런</text>
+          <text x="255" y="176" text-anchor="end" fill="#d29922" font-size="12">최대 6 Tb</text>
+          <text x="10" y="194" fill="#6e7681" font-size="11">런 시간</text>
+          <text x="255" y="194" text-anchor="end" fill="#8b949e" font-size="12">1–2일</text>
+          <text x="10" y="212" fill="#6e7681" font-size="11">주요 용도</text>
+          <text x="255" y="212" text-anchor="end" fill="#8b949e" font-size="12">WGS, WES, RNA-seq</text>
+          <text x="10" y="230" fill="#6e7681" font-size="11">장점</text>
+          <text x="255" y="230" text-anchor="end" fill="#3fb950" font-size="11">비용 효율, 고정확도</text>
+          <text x="10" y="248" fill="#6e7681" font-size="11">단점</text>
+          <text x="255" y="248" text-anchor="end" fill="#ff7b72" font-size="11">짧은 리드, PCR 편향</text>
+        </g>
+
+        <!-- PacBio -->
+        <g transform="translate(297,20)">
+          <rect x="0" y="0" width="265" height="260" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+          <rect x="0" y="0" width="265" height="36" rx="8" fill="#1a3a20"/>
+          <rect x="0" y="28" width="265" height="8" fill="#1a3a20"/>
+          <text x="132" y="24" text-anchor="middle" fill="#acf2bd" font-size="14" font-weight="600">PacBio SMRT</text>
+          <!-- ZMW well diagram -->
+          <rect x="50" y="55" width="60" height="60" rx="4" fill="#0d1117" stroke="#3fb950"/>
+          <circle cx="80" cy="85" r="12" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="80" y="89" text-anchor="middle" fill="#acf2bd" font-size="8">ZMW</text>
+          <line x1="74" y1="115" x2="74" y2="130" stroke="#3fb950" stroke-width="1.5"/>
+          <line x1="86" y1="115" x2="86" y2="130" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="80" y="145" text-anchor="middle" fill="#6e7681" font-size="9">단일분자 검출</text>
+          <!-- SMRT bell -->
+          <ellipse cx="170" cy="85" rx="12" ry="18" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+          <line x1="158" y1="85" x2="182" y2="85" stroke="#3fb950" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="170" y="112" text-anchor="middle" fill="#6e7681" font-size="9">SMRT 벨</text>
+          <!-- Specs -->
+          <text x="10" y="140" fill="#6e7681" font-size="11">리드 길이</text>
+          <text x="255" y="140" text-anchor="end" fill="#58a6ff" font-size="12">평균 20 kb+</text>
+          <text x="10" y="158" fill="#6e7681" font-size="11">정확도</text>
+          <text x="255" y="158" text-anchor="end" fill="#3fb950" font-size="12">HiFi: 99.9%</text>
+          <text x="10" y="176" fill="#6e7681" font-size="11">처리량/런</text>
+          <text x="255" y="176" text-anchor="end" fill="#d29922" font-size="12">~360 Gb (Revio)</text>
+          <text x="10" y="194" fill="#6e7681" font-size="11">런 시간</text>
+          <text x="255" y="194" text-anchor="end" fill="#8b949e" font-size="12">15–30시간</text>
+          <text x="10" y="212" fill="#6e7681" font-size="11">주요 용도</text>
+          <text x="255" y="212" text-anchor="end" fill="#8b949e" font-size="12">SV, 반복서열, 하플로타입</text>
+          <text x="10" y="230" fill="#6e7681" font-size="11">장점</text>
+          <text x="255" y="230" text-anchor="end" fill="#3fb950" font-size="11">장리드, 높은 정확도</text>
+          <text x="10" y="248" fill="#6e7681" font-size="11">단점</text>
+          <text x="255" y="248" text-anchor="end" fill="#ff7b72" font-size="11">비용, 처리량 제한</text>
+        </g>
+
+        <!-- Oxford Nanopore -->
+        <g transform="translate(574,20)">
+          <rect x="0" y="0" width="265" height="260" rx="8" fill="#161b22" stroke="#d29922" stroke-width="1.5"/>
+          <rect x="0" y="0" width="265" height="36" rx="8" fill="#3a2a00"/>
+          <rect x="0" y="28" width="265" height="8" fill="#3a2a00"/>
+          <text x="132" y="24" text-anchor="middle" fill="#f8e3a1" font-size="14" font-weight="600">Oxford Nanopore</text>
+          <!-- Pore diagram -->
+          <rect x="40" y="55" width="80" height="60" rx="4" fill="#0d1117" stroke="#d29922"/>
+          <text x="80" y="74" text-anchor="middle" fill="#6e7681" font-size="9">막 (membrane)</text>
+          <rect x="72" y="65" width="16" height="40" rx="8" fill="#3a2a00" stroke="#d29922"/>
+          <text x="80" y="89" text-anchor="middle" fill="#f8e3a1" font-size="9">포어</text>
+          <!-- DNA thread through -->
+          <path d="M80,58 L80,105" stroke="#3fb950" stroke-width="2" stroke-dasharray="4,2"/>
+          <text x="80" y="120" text-anchor="middle" fill="#6e7681" font-size="9">이온 전류 변화 감지</text>
+          <!-- Current signal -->
+          <polyline points="140,70 148,65 155,80 163,60 170,75 178,68 185,82 192,58 199,72" fill="none" stroke="#d29922" stroke-width="1.5"/>
+          <text x="170" y="120" text-anchor="middle" fill="#6e7681" font-size="9">이온 전류 신호</text>
+          <!-- Specs -->
+          <text x="10" y="140" fill="#6e7681" font-size="11">리드 길이</text>
+          <text x="255" y="140" text-anchor="end" fill="#58a6ff" font-size="12">수십 kb ~ Mb</text>
+          <text x="10" y="158" fill="#6e7681" font-size="11">정확도</text>
+          <text x="255" y="158" text-anchor="end" fill="#d29922" font-size="12">Q20+ (~99%)</text>
+          <text x="10" y="176" fill="#6e7681" font-size="11">처리량/런</text>
+          <text x="255" y="176" text-anchor="end" fill="#d29922" font-size="12">~1.5 Tb (PromethION)</text>
+          <text x="10" y="194" fill="#6e7681" font-size="11">실시간 분석</text>
+          <text x="255" y="194" text-anchor="end" fill="#3fb950" font-size="12">가능 (MinION 포함)</text>
+          <text x="10" y="212" fill="#6e7681" font-size="11">주요 용도</text>
+          <text x="255" y="212" text-anchor="end" fill="#8b949e" font-size="12">현장 진단, 에피지놈</text>
+          <text x="10" y="230" fill="#6e7681" font-size="11">장점</text>
+          <text x="255" y="230" text-anchor="end" fill="#3fb950" font-size="11">초장리드, 실시간, 소형</text>
+          <text x="10" y="248" fill="#6e7681" font-size="11">단점</text>
+          <text x="255" y="248" text-anchor="end" fill="#ff7b72" font-size="11">에러율 상대적 높음</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">📚 WGS vs WES vs 타깃 패널</div>
+        <div class="card-body">
+          <strong style="color:var(--text)">전장 유전체(WGS)</strong>: 30억 염기쌍 전체 분석, 모든 변이 탐지 가능<br>
+          <strong style="color:var(--text)">전장 엑솜(WES)</strong>: 코딩 영역 1.5%만 분석, 비용 절감<br>
+          <strong style="color:var(--text)">타깃 패널</strong>: 수십~수백 유전자만 선택적 분석, 임상 진단에 최적화
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 시퀀싱 깊이 (Depth/Coverage)</div>
+        <div class="card-body">
+          각 유전체 위치가 평균 몇 번 읽혔는지를 나타냅니다.<br>
+          <strong style="color:var(--text)">30x WGS</strong>: 연구용 기준<br>
+          <strong style="color:var(--text)">100x WES</strong>: 임상 진단 기준<br>
+          <strong style="color:var(--text)">500–1000x</strong>: 액체 생검, 미세 변이 탐지
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<footer class="site-footer">
-  <div class="wrap">
-    <span>NGS Sequencing Course · Module 01–03</span>
-    <span>Built for undergraduate translational medicine education</span>
+<!-- =================== TAB 2: 분석 파이프라인 =================== -->
+<section id="tab2" class="tab-panel">
+
+  <div class="section">
+    <div class="section-label">Module 03</div>
+    <div class="section-title">NGS 분석 파이프라인 실습</div>
+    <div class="section-desc">시퀀서에서 나온 FASTQ 파일이 최종 변이 목록(VCF)이 되기까지의 전 과정을 단계별로 살펴봅니다. 아래 예시는 실제 임상에서 사용하는 GATK Best Practice 워크플로우를 기반으로 합니다.</div>
+
+    <!-- Pipeline overview -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 4. NGS 분석 표준 파이프라인 (GATK Best Practices)</div>
+      <svg viewBox="0 0 820 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:820px;min-width:500px">
+        <defs>
+          <marker id="parr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#484f58"/></marker>
+        </defs>
+        <!-- Boxes -->
+        <rect x="10" y="30" width="100" height="50" rx="6" fill="#1f3a5f" stroke="#1f6feb"/>
+        <text x="60" y="51" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="600">FASTQ</text>
+        <text x="60" y="66" text-anchor="middle" fill="#8b949e" font-size="10">원시 리드</text>
+        <text x="60" y="100" text-anchor="middle" fill="#6e7681" font-size="9">① 원시 데이터</text>
+
+        <line x1="110" y1="55" x2="128" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#parr)"/>
+
+        <rect x="130" y="30" width="110" height="50" rx="6" fill="#1a3a20" stroke="#3fb950"/>
+        <text x="185" y="51" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">QC &amp; 트리밍</text>
+        <text x="185" y="66" text-anchor="middle" fill="#8b949e" font-size="10">FastQC, Trimmomatic</text>
+        <text x="185" y="100" text-anchor="middle" fill="#6e7681" font-size="9">② 품질 관리</text>
+
+        <line x1="240" y1="55" x2="258" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#parr)"/>
+
+        <rect x="260" y="30" width="115" height="50" rx="6" fill="#3a2a00" stroke="#d29922"/>
+        <text x="317" y="51" text-anchor="middle" fill="#f8e3a1" font-size="11" font-weight="600">정렬 (Alignment)</text>
+        <text x="317" y="66" text-anchor="middle" fill="#8b949e" font-size="10">BWA-MEM2, STAR</text>
+        <text x="317" y="100" text-anchor="middle" fill="#6e7681" font-size="9">③ 참조유전체 매핑</text>
+
+        <line x1="375" y1="55" x2="393" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#parr)"/>
+
+        <rect x="395" y="30" width="100" height="50" rx="6" fill="#1f3a5f" stroke="#bc8cff"/>
+        <text x="445" y="51" text-anchor="middle" fill="#dbb8ff" font-size="11" font-weight="600">후처리</text>
+        <text x="445" y="66" text-anchor="middle" fill="#8b949e" font-size="10">중복제거, BQSR</text>
+        <text x="445" y="100" text-anchor="middle" fill="#6e7681" font-size="9">④ BAM 보정</text>
+
+        <line x1="495" y1="55" x2="513" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#parr)"/>
+
+        <rect x="515" y="30" width="115" height="50" rx="6" fill="#3a1515" stroke="#f85149"/>
+        <text x="572" y="51" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">변이 탐지</text>
+        <text x="572" y="66" text-anchor="middle" fill="#8b949e" font-size="10">HaplotypeCaller</text>
+        <text x="572" y="100" text-anchor="middle" fill="#6e7681" font-size="9">⑤ Variant Calling</text>
+
+        <line x1="630" y1="55" x2="648" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#parr)"/>
+
+        <rect x="650" y="30" width="110" height="50" rx="6" fill="#1a3a20" stroke="#3fb950"/>
+        <text x="705" y="51" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">어노테이션</text>
+        <text x="705" y="66" text-anchor="middle" fill="#8b949e" font-size="10">VEP, ANNOVAR</text>
+        <text x="705" y="100" text-anchor="middle" fill="#6e7681" font-size="9">⑥ 변이 해석</text>
+
+        <rect x="760" y="38" width="50" height="34" rx="6" fill="#21262d" stroke="#484f58"/>
+        <text x="785" y="57" text-anchor="middle" fill="#8b949e" font-size="10">VCF</text>
+        <text x="785" y="70" text-anchor="middle" fill="#6e7681" font-size="9">최종 보고</text>
+        <line x1="760" y1="55" x2="763" y2="55" stroke="#484f58" stroke-width="1.5"/>
+      </svg>
+    </div>
   </div>
-</footer>
 
-<script src="assets/reveal.js"></script>
+  <!-- Step 1: FASTQ -->
+  <div class="pipeline-step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">FASTQ 파일 — 원시 시퀀싱 데이터</div>
+      <div class="step-desc">시퀀서에서 출력된 FASTQ 파일은 4줄이 하나의 리드를 구성합니다. 각 염기에는 품질 점수(Phred score)가 부여됩니다.</div>
+
+      <div class="fastq-block">
+<span class="fq-header">@HG002_R1_1 SRR11140744.1 length=150</span><span class="fq-label lbl-blue">리드 ID</span>
+<span class="fq-seq"><span class="seq-t">T</span><span class="seq-a">A</span><span class="seq-g">G</span><span class="seq-c">C</span><span class="seq-t">T</span><span class="seq-a">A</span><span class="seq-t">T</span><span class="seq-g">G</span><span class="seq-c">C</span><span class="seq-a">A</span><span class="seq-t">T</span><span class="seq-g">G</span><span class="seq-c">C</span><span class="seq-t">T</span><span class="seq-a">A</span><span class="seq-g">G</span><span class="seq-t">T</span><span class="seq-c">C</span><span class="seq-a">A</span><span class="seq-t">T</span><span class="seq-g">G</span><span class="seq-a">A</span><span class="seq-t">T</span><span class="seq-c">C</span><span class="seq-g">G</span><span class="seq-a">A</span><span class="seq-t">T</span><span class="seq-a">A</span><span class="seq-g">G</span><span class="seq-c">C</span>...</span><span class="fq-label lbl-green">DNA 서열 (150bp)</span>
+<span class="fq-plus">+</span><span class="fq-label lbl-gray">구분자</span>
+<span class="fq-qual">IIHHGFFEEEDCBAIII???>===IHG@BCCIIIFFF...</span><span class="fq-label lbl-amber">품질 점수 (ASCII)</span>
+      </div>
+
+      <div class="infobox">
+        <div class="infobox-title">Phred 품질 점수 해석</div>
+        Q30 = 염기 오류 확률 0.1% (정확도 99.9%). Illumina 리드에서 Q30 이상의 비율이 80% 이상이면 고품질 데이터로 간주합니다.
+        <br><strong style="color:var(--text)">Q20</strong> = 99% 정확도 &nbsp;|&nbsp; <strong style="color:var(--text)">Q30</strong> = 99.9% &nbsp;|&nbsp; <strong style="color:var(--text)">Q40</strong> = 99.99%
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Alignment -->
+  <div class="pipeline-step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">정렬 (Alignment) — BWA-MEM2로 참조 유전체에 매핑</div>
+      <div class="step-desc">각 리드를 참조 유전체(hg38)에 정렬하여 BAM 파일을 생성합니다.</div>
+
+      <div class="code-window">
+        <div class="code-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot amber"></span>
+          <span class="code-dot green"></span>
+          <span class="code-filename">01_alignment.sh</span>
+        </div>
+        <div class="code-body">
+          <pre><span class="c-comment"># 참조 유전체 인덱싱 (최초 1회)</span>
+<span class="c-cmd">bwa-mem2</span> index <span class="c-path">hg38.fa</span>
+
+<span class="c-comment"># 페어드엔드 리드 정렬 → SAM → BAM 변환</span>
+<span class="c-cmd">bwa-mem2</span> mem \
+  <span class="c-flag">-t</span> <span class="c-num">16</span> \
+  <span class="c-flag">-R</span> <span class="c-str">"@RG\tID:sample1\tSM:HG002\tPL:ILLUMINA\tLB:lib1"</span> \
+  <span class="c-path">hg38.fa</span> \
+  <span class="c-path">sample1_R1.fastq.gz</span> \
+  <span class="c-path">sample1_R2.fastq.gz</span> | \
+<span class="c-cmd">samtools</span> sort <span class="c-flag">-@</span> <span class="c-num">8</span> <span class="c-flag">-o</span> <span class="c-path">sample1.sorted.bam</span>
+
+<span class="c-comment"># BAM 인덱싱</span>
+<span class="c-cmd">samtools</span> index <span class="c-path">sample1.sorted.bam</span>
+
+<span class="c-comment"># 정렬 통계 확인</span>
+<span class="c-cmd">samtools</span> flagstat <span class="c-path">sample1.sorted.bam</span>
+<span class="c-comment"># 출력 예:
+# 156,234,512 + 0 in total (QC-passed)
+# 155,891,200 + 0 mapped (99.78% : N/A)</span></pre>
+        </div>
+      </div>
+
+      <!-- Alignment diagram -->
+      <div class="diagram-wrap">
+        <div class="diagram-title">그림 5. 리드 정렬 모식도 — 참조 유전체에 대한 리드 매핑</div>
+        <svg viewBox="0 0 780 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:780px;min-width:400px">
+          <!-- Reference genome bar -->
+          <text x="10" y="25" fill="#8b949e" font-size="11">참조 유전체 (chr17:7,674,200–7,674,350)</text>
+          <rect x="10" y="32" width="750" height="20" rx="3" fill="#21262d" stroke="#484f58"/>
+          <!-- Reference sequence letters -->
+          <text x="15" y="47" fill="#6e7681" font-size="9" font-family="'Courier New',monospace">ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG</text>
+          <!-- Position marks -->
+          <line x1="10" y1="52" x2="10" y2="60" stroke="#484f58" stroke-width="1"/>
+          <text x="10" y="70" fill="#6e7681" font-size="9">...200</text>
+          <line x1="385" y1="52" x2="385" y2="60" stroke="#484f58" stroke-width="1"/>
+          <text x="380" y="70" fill="#6e7681" font-size="9">...275</text>
+          <line x1="760" y1="52" x2="760" y2="60" stroke="#484f58" stroke-width="1"/>
+          <text x="730" y="70" fill="#6e7681" font-size="9">...350</text>
+
+          <!-- Reads -->
+          <rect x="10" y="80" width="200" height="14" rx="2" fill="#1f6feb" opacity="0.85"/>
+          <text x="110" y="91" text-anchor="middle" fill="#cae8ff" font-size="9">Read_1 →</text>
+
+          <rect x="45" y="97" width="200" height="14" rx="2" fill="#1f6feb" opacity="0.85"/>
+          <text x="145" y="108" text-anchor="middle" fill="#cae8ff" font-size="9">Read_2 →</text>
+
+          <rect x="80" y="114" width="200" height="14" rx="2" fill="#238636" opacity="0.85"/>
+          <text x="180" y="125" text-anchor="middle" fill="#acf2bd" font-size="9">Read_3 →</text>
+
+          <rect x="115" y="131" width="200" height="14" rx="2" fill="#238636" opacity="0.85"/>
+          <text x="215" y="142" text-anchor="middle" fill="#acf2bd" font-size="9">Read_4 →</text>
+
+          <rect x="150" y="148" width="200" height="14" rx="2" fill="#1f6feb" opacity="0.85"/>
+          <text x="250" y="159" text-anchor="middle" fill="#cae8ff" font-size="9">Read_5 →</text>
+
+          <!-- Variant position marker -->
+          <line x1="310" y1="32" x2="310" y2="165" stroke="#f85149" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <rect x="290" y="168" width="45" height="16" rx="3" fill="#b91c1c"/>
+          <text x="312" y="180" text-anchor="middle" fill="#fecaca" font-size="10" font-weight="600">SNV</text>
+
+          <!-- Read with variant -->
+          <rect x="185" y="80" width="14" height="14" rx="1" fill="#f85149"/>
+          <text x="192" y="91" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">A</text>
+          <rect x="220" y="97" width="14" height="14" rx="1" fill="#f85149"/>
+          <text x="227" y="108" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">A</text>
+          <rect x="255" y="114" width="14" height="14" rx="1" fill="#6e7681"/>
+          <text x="262" y="125" text-anchor="middle" fill="#aaa" font-size="10">G</text>
+          <rect x="290" y="131" width="14" height="14" rx="1" fill="#f85149"/>
+          <text x="297" y="142" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">A</text>
+          <rect x="325" y="148" width="14" height="14" rx="1" fill="#f85149"/>
+          <text x="332" y="159" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">A</text>
+
+          <!-- Coverage depth -->
+          <text x="560" y="90" fill="#8b949e" font-size="11">커버리지 깊이</text>
+          <rect x="560" y="100" width="80" height="8" rx="2" fill="#1f6feb" opacity="0.5"/>
+          <rect x="560" y="112" width="120" height="8" rx="2" fill="#1f6feb" opacity="0.6"/>
+          <rect x="560" y="124" width="105" height="8" rx="2" fill="#1f6feb" opacity="0.7"/>
+          <rect x="560" y="136" width="130" height="8" rx="2" fill="#1f6feb" opacity="0.8"/>
+          <text x="560" y="158" fill="#6e7681" font-size="10">평균 커버리지: 45x</text>
+          <text x="560" y="170" fill="#6e7681" font-size="10">VAF: 80% (4/5 reads)</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Variant Calling -->
+  <div class="pipeline-step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">변이 탐지 — GATK HaplotypeCaller</div>
+      <div class="step-desc">BAM 파일에서 SNV, Indel 등 변이를 탐지하고 VCF 형식으로 출력합니다.</div>
+
+      <div class="code-window">
+        <div class="code-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot amber"></span>
+          <span class="code-dot green"></span>
+          <span class="code-filename">02_variant_calling.sh</span>
+        </div>
+        <div class="code-body">
+          <pre><span class="c-comment"># 중복 서열 마킹</span>
+<span class="c-cmd">gatk</span> MarkDuplicates \
+  <span class="c-flag">-I</span> <span class="c-path">sample1.sorted.bam</span> \
+  <span class="c-flag">-O</span> <span class="c-path">sample1.markdup.bam</span> \
+  <span class="c-flag">-M</span> <span class="c-path">sample1.metrics.txt</span>
+
+<span class="c-comment"># 염기 품질 점수 재보정 (BQSR)</span>
+<span class="c-cmd">gatk</span> BaseRecalibrator \
+  <span class="c-flag">-I</span> <span class="c-path">sample1.markdup.bam</span> \
+  <span class="c-flag">-R</span> <span class="c-path">hg38.fa</span> \
+  <span class="c-flag">--known-sites</span> <span class="c-path">dbsnp_146.hg38.vcf.gz</span> \
+  <span class="c-flag">-O</span> <span class="c-path">recal.table</span>
+
+<span class="c-cmd">gatk</span> ApplyBQSR \
+  <span class="c-flag">-I</span> <span class="c-path">sample1.markdup.bam</span> \
+  <span class="c-flag">--bqsr-recal-file</span> <span class="c-path">recal.table</span> \
+  <span class="c-flag">-O</span> <span class="c-path">sample1.recal.bam</span>
+
+<span class="c-comment"># 변이 탐지 (HaplotypeCaller)</span>
+<span class="c-cmd">gatk</span> HaplotypeCaller \
+  <span class="c-flag">-R</span> <span class="c-path">hg38.fa</span> \
+  <span class="c-flag">-I</span> <span class="c-path">sample1.recal.bam</span> \
+  <span class="c-flag">-O</span> <span class="c-path">sample1.g.vcf.gz</span> \
+  <span class="c-flag">-ERC</span> GVCF \
+  <span class="c-flag">--dbsnp</span> <span class="c-path">dbsnp_146.hg38.vcf.gz</span>
+
+<span class="c-ok"># ✓ 완료: sample1.g.vcf.gz 생성</span></pre>
+        </div>
+      </div>
+
+      <!-- IGV-style view -->
+      <div class="igv-wrap">
+        <div class="igv-toolbar">
+          <span class="igv-btn">🧬 hg38</span>
+          <span class="igv-loc">chr17:7,674,214</span>
+          <span class="igv-btn">+</span>
+          <span class="igv-btn">−</span>
+          <span class="igv-btn">↔ All</span>
+          <span style="font-size:12px;color:var(--text2);margin-left:auto">IGV 스타일 변이 뷰어 (TP53 p.R175H)</span>
+        </div>
+        <div class="igv-body">
+          <!-- Ruler track -->
+          <div class="igv-track">
+            <div class="igv-track-label" style="font-size:10px">chr17 좌표</div>
+            <div class="igv-track-content">
+              <svg viewBox="0 0 600 22" style="width:100%;height:22px">
+                <rect width="600" height="22" fill="#0d1117"/>
+                <text x="5" y="14" fill="#6e7681" font-size="9" font-family="'Courier New',monospace">7,674,200</text>
+                <text x="200" y="14" fill="#6e7681" font-size="9" font-family="'Courier New',monospace">7,674,230</text>
+                <text x="400" y="14" fill="#6e7681" font-size="9" font-family="'Courier New',monospace">7,674,260</text>
+                <text x="550" y="14" fill="#6e7681" font-size="9" font-family="'Courier New',monospace">7,674,280</text>
+                <line x1="0" y1="20" x2="600" y2="20" stroke="#30363d"/>
+              </svg>
+            </div>
+          </div>
+          <!-- Reference track -->
+          <div class="igv-track">
+            <div class="igv-track-label">참조 (hg38)</div>
+            <div class="igv-track-content">
+              <svg viewBox="0 0 600 24" style="width:100%;height:24px">
+                <rect width="600" height="24" fill="#0d1117"/>
+                <text x="5" y="16" fill="#484f58" font-size="11" font-family="'Courier New',monospace">...ATCGATCGATCG<tspan fill="#f85149" font-weight="700">G</tspan>ATCGATCGATCGATCGATCGATCGATCGATCGATCG...</text>
+                <!-- Variant mark -->
+                <rect x="205" y="2" width="12" height="20" rx="1" fill="#b91c1c" opacity="0.3"/>
+              </svg>
+            </div>
+          </div>
+          <!-- Coverage track -->
+          <div class="igv-track" style="min-height:50px">
+            <div class="igv-track-label">커버리지</div>
+            <div class="igv-track-content">
+              <svg viewBox="0 0 600 50" style="width:100%;height:50px">
+                <rect width="600" height="50" fill="#0d1117"/>
+                <!-- Coverage bars -->
+                <rect x="0" y="10" width="600" height="35" fill="#1a2744" opacity="0.4"/>
+                <rect x="0" y="15" width="40" height="30" fill="#1f6feb" opacity="0.6"/>
+                <rect x="40" y="12" width="40" height="33" fill="#1f6feb" opacity="0.6"/>
+                <rect x="80" y="14" width="40" height="31" fill="#1f6feb" opacity="0.6"/>
+                <rect x="120" y="11" width="40" height="34" fill="#1f6feb" opacity="0.6"/>
+                <rect x="160" y="13" width="40" height="32" fill="#1f6feb" opacity="0.6"/>
+                <!-- Variant position spike -->
+                <rect x="200" y="8" width="20" height="37" fill="#1f6feb" opacity="0.4"/>
+                <rect x="200" y="8" width="9" height="37" fill="#f85149" opacity="0.6"/>
+                <rect x="240" y="12" width="40" height="33" fill="#1f6feb" opacity="0.6"/>
+                <rect x="280" y="14" width="40" height="31" fill="#1f6feb" opacity="0.6"/>
+                <rect x="320" y="11" width="40" height="34" fill="#1f6feb" opacity="0.6"/>
+                <rect x="360" y="13" width="40" height="32" fill="#1f6feb" opacity="0.6"/>
+                <rect x="400" y="10" width="40" height="35" fill="#1f6feb" opacity="0.6"/>
+                <rect x="440" y="12" width="40" height="33" fill="#1f6feb" opacity="0.6"/>
+                <rect x="480" y="14" width="40" height="31" fill="#1f6feb" opacity="0.6"/>
+                <rect x="520" y="11" width="40" height="34" fill="#1f6feb" opacity="0.6"/>
+                <rect x="560" y="13" width="40" height="32" fill="#1f6feb" opacity="0.6"/>
+                <text x="4" y="10" fill="#6e7681" font-size="9">45x</text>
+                <text x="200" y="7" fill="#f85149" font-size="9">VAF 52%</text>
+              </svg>
+            </div>
+          </div>
+          <!-- Reads track -->
+          <div class="igv-track" style="min-height:100px">
+            <div class="igv-track-label">리드 정렬</div>
+            <div class="igv-track-content">
+              <svg viewBox="0 0 600 100" style="width:100%;height:100px">
+                <rect width="600" height="100" fill="#0d1117"/>
+                <!-- Read rows -->
+                <rect x="5" y="5" width="240" height="12" rx="2" fill="#1f3a5f"/>
+                <rect x="207" y="5" width="11" height="12" rx="1" fill="#f85149"/>
+                <text x="211" y="15" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">A</text>
+
+                <rect x="30" y="19" width="240" height="12" rx="2" fill="#1f3a5f"/>
+                <rect x="207" y="19" width="11" height="12" rx="1" fill="#f85149"/>
+                <text x="211" y="29" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">A</text>
+
+                <rect x="15" y="33" width="240" height="12" rx="2" fill="#1a3a20"/>
+                <rect x="207" y="33" width="11" height="12" rx="1" fill="#30363d"/>
+                <text x="211" y="43" text-anchor="middle" fill="#6e7681" font-size="9">G</text>
+
+                <rect x="50" y="47" width="240" height="12" rx="2" fill="#1f3a5f"/>
+                <rect x="207" y="47" width="11" height="12" rx="1" fill="#f85149"/>
+                <text x="211" y="57" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">A</text>
+
+                <rect x="10" y="61" width="240" height="12" rx="2" fill="#1a3a20"/>
+                <rect x="207" y="61" width="11" height="12" rx="1" fill="#f85149"/>
+                <text x="211" y="71" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">A</text>
+
+                <rect x="35" y="75" width="240" height="12" rx="2" fill="#1f3a5f"/>
+                <rect x="207" y="75" width="11" height="12" rx="1" fill="#30363d"/>
+                <text x="211" y="85" text-anchor="middle" fill="#6e7681" font-size="9">G</text>
+
+                <!-- Variant line -->
+                <line x1="207" y1="0" x2="207" y2="100" stroke="#f85149" stroke-width="0.8" stroke-dasharray="3,2"/>
+
+                <!-- Right side labels -->
+                <text x="420" y="14" fill="#6e7681" font-size="9">→ forward</text>
+                <text x="420" y="28" fill="#6e7681" font-size="9">→ forward</text>
+                <text x="420" y="42" fill="#3fb950" font-size="9">→ forward (ref)</text>
+                <text x="420" y="56" fill="#6e7681" font-size="9">→ forward</text>
+                <text x="420" y="70" fill="#3fb950" font-size="9">→ forward (ref)</text>
+                <text x="420" y="84" fill="#6e7681" font-size="9">→ forward</text>
+              </svg>
+            </div>
+          </div>
+          <!-- VCF annotation -->
+          <div class="igv-track">
+            <div class="igv-track-label">변이 (VCF)</div>
+            <div class="igv-track-content">
+              <svg viewBox="0 0 600 28" style="width:100%;height:28px">
+                <rect width="600" height="28" fill="#0d1117"/>
+                <rect x="200" y="4" width="18" height="20" rx="3" fill="#b91c1c"/>
+                <text x="209" y="18" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="700">SNV</text>
+                <text x="225" y="16" fill="#f8e3a1" font-size="10">TP53:c.524G&gt;A p.R175H (헤테로접합, VAF=52%)</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VCF output -->
+      <div class="code-window">
+        <div class="code-header">
+          <span class="code-dot red"></span>
+          <span class="code-dot amber"></span>
+          <span class="code-dot green"></span>
+          <span class="code-filename">sample1.vcf — 변이 탐지 결과</span>
+        </div>
+        <div class="code-body">
+          <pre><span class="c-comment">##fileformat=VCFv4.2
+##FILTER=&lt;ID=PASS,Description="All filters passed"&gt;
+##INFO=&lt;ID=DP,Number=1,Type=Integer,Description="Total Depth"&gt;
+##FORMAT=&lt;ID=GT,Number=1,Type=String,Description="Genotype"&gt;</span>
+<span class="c-flag">#CHROM  POS       ID      REF  ALT  QUAL  FILTER  INFO                    FORMAT    SAMPLE1</span>
+<span class="c-path">chr17</span>   <span class="c-num">7674214</span>  rs28934578  <span class="c-ok">G</span>  <span class="mut-snv">A</span>   <span class="c-num">3814</span>  PASS    DP=<span class="c-num">46</span>;AF=<span class="c-num">0.52</span>;GENE=TP53  GT:DP:AD  <span class="c-str">0/1</span>:<span class="c-num">46</span>:<span class="c-num">22,24</span>
+<span class="c-path">chr17</span>   <span class="c-num">7674220</span>  .           <span class="c-ok">C</span>  <span class="mut-del">-</span>   <span class="c-num">156</span>   PASS    DP=<span class="c-num">44</span>;AF=<span class="c-num">0.05</span>;GENE=TP53  GT:DP:AD  <span class="c-str">0/0</span>:<span class="c-num">44</span>:<span class="c-num">42,2</span>
+<span class="c-path">chr13</span>   <span class="c-num">32340300</span> rs80358899  <span class="c-ok">A</span>  <span class="mut-snv">T</span>   <span class="c-num">2100</span>  PASS    DP=<span class="c-num">52</span>;AF=<span class="c-num">0.48</span>;GENE=BRCA2  GT:DP:AD  <span class="c-str">0/1</span>:<span class="c-num">52</span>:<span class="c-num">27,25</span></pre>
+        </div>
+      </div>
+
+      <!-- Variant table -->
+      <div class="card" style="overflow-x:auto">
+        <div class="card-title">변이 어노테이션 결과 (VEP/ANNOVAR)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>유전자</th><th>변이</th><th>아미노산 변화</th><th>유형</th><th>VAF</th><th>ClinVar</th><th>COSMIC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>TP53</td>
+              <td class="mut-snv">c.524G&gt;A</td>
+              <td>p.Arg175His</td>
+              <td><span class="badge badge-red">Missense</span></td>
+              <td>52%</td>
+              <td><span class="badge badge-red">Pathogenic</span></td>
+              <td>COSM10656</td>
+            </tr>
+            <tr>
+              <td>BRCA2</td>
+              <td class="mut-snv">c.3847A&gt;T</td>
+              <td>p.Lys1283*</td>
+              <td><span class="badge badge-red">Nonsense</span></td>
+              <td>48%</td>
+              <td><span class="badge badge-red">Pathogenic</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>KRAS</td>
+              <td class="mut-snv">c.35G&gt;T</td>
+              <td>p.Gly12Val</td>
+              <td><span class="badge badge-amber">Missense</span></td>
+              <td>38%</td>
+              <td><span class="badge badge-amber">Likely Path.</span></td>
+              <td>COSM521</td>
+            </tr>
+            <tr>
+              <td>PIK3CA</td>
+              <td class="mut-ins">c.3140A&gt;G</td>
+              <td>p.His1047Arg</td>
+              <td><span class="badge badge-amber">Missense</span></td>
+              <td>25%</td>
+              <td><span class="badge badge-amber">Likely Path.</span></td>
+              <td>COSM775</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- =================== TAB 3: 임상 적용 =================== -->
+<section id="tab3" class="tab-panel">
+
+  <div class="section">
+    <div class="section-label">Module 04</div>
+    <div class="section-title">임상 NGS 적용 사례</div>
+    <div class="section-desc">NGS 기술은 감염병 진단, 암 유전체 분석, 희귀 유전 질환 진단 등 다양한 임상 분야에서 활용됩니다. 아래 두 가지 대표적인 사례를 통해 실제 임상 워크플로우를 살펴봅니다.</div>
+  </div>
+
+  <!-- Case 1: SFTS -->
+  <div class="section">
+    <div class="section-label">사례 01 — 감염병 유전체 진단</div>
+    <div class="section-title" style="color:var(--amber2)">중증열성혈소판감소증후군 바이러스 (SFTSV) 바이러스혈증 진단</div>
+    <div class="section-desc">SFTSV(Severe Fever with Thrombocytopenia Syndrome Virus)는 부냐바이러스목 페뇨바이러스과에 속하는 RNA 바이러스로, 진드기(주로 작은소피참진드기)를 매개로 전파됩니다. 치사율이 6–30%에 달하는 고위험 감염병으로, 조기 진단이 예후에 결정적입니다.</div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 6. SFTSV 유전체 구조 및 mNGS 진단 워크플로우</div>
+      <svg viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:820px;min-width:500px">
+        <defs>
+          <marker id="sarr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#484f58"/></marker>
+        </defs>
+
+        <!-- SFTSV particle -->
+        <g transform="translate(20,20)">
+          <text x="80" y="18" text-anchor="middle" fill="#d29922" font-size="12" font-weight="600">SFTSV 구조</text>
+          <circle cx="80" cy="80" r="60" fill="#2d1a00" stroke="#d29922" stroke-width="2"/>
+          <!-- Envelope spikes -->
+          <circle cx="80" cy="20" r="6" fill="#d29922"/>
+          <circle cx="120" cy="40" r="6" fill="#d29922"/>
+          <circle cx="130" cy="80" r="6" fill="#d29922"/>
+          <circle cx="120" cy="120" r="6" fill="#d29922"/>
+          <circle cx="80" cy="135" r="6" fill="#d29922"/>
+          <circle cx="40" cy="120" r="6" fill="#d29922"/>
+          <circle cx="30" cy="80" r="6" fill="#d29922"/>
+          <circle cx="40" cy="40" r="6" fill="#d29922"/>
+          <!-- RNA segments inside -->
+          <ellipse cx="80" cy="65" rx="20" ry="12" fill="none" stroke="#3fb950" stroke-width="1.5"/>
+          <text x="80" y="69" text-anchor="middle" fill="#acf2bd" font-size="9">S 분절</text>
+          <ellipse cx="60" cy="90" rx="22" ry="11" fill="none" stroke="#58a6ff" stroke-width="1.5"/>
+          <text x="60" y="94" text-anchor="middle" fill="#79c0ff" font-size="9">M 분절</text>
+          <ellipse cx="100" cy="100" rx="24" ry="10" fill="none" stroke="#bc8cff" stroke-width="1.5"/>
+          <text x="100" y="104" text-anchor="middle" fill="#dbb8ff" font-size="9">L 분절</text>
+          <!-- Labels -->
+          <text x="80" y="160" text-anchor="middle" fill="#8b949e" font-size="10">외피 단백: Gn, Gc</text>
+          <text x="80" y="174" text-anchor="middle" fill="#6e7681" font-size="9">(-) ssRNA 3분절 게놈</text>
+        </g>
+
+        <!-- Genome segments -->
+        <g transform="translate(175,20)">
+          <text x="150" y="18" text-anchor="middle" fill="#d29922" font-size="12" font-weight="600">SFTSV 게놈 분절 (총 12.8 kb)</text>
+          <!-- S segment -->
+          <rect x="0" y="30" width="300" height="35" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="10" y="46" fill="#acf2bd" font-size="11" font-weight="600">S 분절 (1.7 kb)</text>
+          <rect x="10" y="52" width="100" height="8" rx="2" fill="#3fb950" opacity="0.8"/>
+          <text x="16" y="60" fill="#0d1117" font-size="8" font-weight="700">NP (뉴클레오캡시드)</text>
+          <rect x="150" y="52" width="80" height="8" rx="2" fill="#238636" opacity="0.8"/>
+          <text x="156" y="60" fill="#acf2bd" font-size="8">NSs (억제 단백)</text>
+          <!-- M segment -->
+          <rect x="0" y="75" width="300" height="35" rx="4" fill="#1f3a5f" stroke="#58a6ff"/>
+          <text x="10" y="91" fill="#79c0ff" font-size="11" font-weight="600">M 분절 (3.4 kb)</text>
+          <rect x="10" y="97" width="130" height="8" rx="2" fill="#1f6feb" opacity="0.8"/>
+          <text x="16" y="105" fill="#cae8ff" font-size="8">Gn (표면 당단백)</text>
+          <rect x="150" y="97" width="130" height="8" rx="2" fill="#388bfd" opacity="0.8"/>
+          <text x="156" y="105" fill="#cae8ff" font-size="8">Gc (표면 당단백)</text>
+          <!-- L segment -->
+          <rect x="0" y="120" width="300" height="35" rx="4" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="10" y="136" fill="#dbb8ff" font-size="11" font-weight="600">L 분절 (6.4 kb)</text>
+          <rect x="10" y="142" width="250" height="8" rx="2" fill="#6e40c9" opacity="0.8"/>
+          <text x="16" y="150" fill="#e2d9f3" font-size="8">RdRp (RNA 의존성 RNA 중합효소)</text>
+
+          <!-- Clinical markers -->
+          <text x="0" y="175" fill="#8b949e" font-size="10">주요 진단 표적 영역:</text>
+          <text x="0" y="190" fill="#6e7681" font-size="10">• NP 유전자: RT-PCR &amp; mNGS 타깃</text>
+          <text x="0" y="205" fill="#6e7681" font-size="10">• L 분절: 계통분석, 변이 모니터링</text>
+          <text x="0" y="220" fill="#6e7681" font-size="10">• Gn/Gc: 중화항체 표적 (백신 연구)</text>
+        </g>
+
+        <!-- Diagnosis workflow -->
+        <g transform="translate(510,20)">
+          <text x="145" y="18" text-anchor="middle" fill="#d29922" font-size="12" font-weight="600">mNGS 진단 워크플로우</text>
+          <!-- Steps -->
+          <rect x="50" y="30" width="200" height="28" rx="4" fill="#21262d" stroke="#484f58"/>
+          <text x="150" y="47" text-anchor="middle" fill="#8b949e" font-size="11">환자 혈액 채취 (급성기)</text>
+
+          <line x1="150" y1="58" x2="150" y2="70" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="50" y="70" width="200" height="28" rx="4" fill="#21262d" stroke="#484f58"/>
+          <text x="150" y="87" text-anchor="middle" fill="#8b949e" font-size="11">핵산 추출 (RNA+DNA)</text>
+
+          <line x1="150" y1="98" x2="150" y2="110" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="50" y="110" width="200" height="28" rx="4" fill="#1f3a5f" stroke="#58a6ff"/>
+          <text x="150" y="127" text-anchor="middle" fill="#79c0ff" font-size="11">라이브러리 제조 &amp; 시퀀싱</text>
+
+          <line x1="150" y1="138" x2="150" y2="150" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="50" y="150" width="200" height="28" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="150" y="167" text-anchor="middle" fill="#acf2bd" font-size="11">호스트 리드 제거 (탈호스트)</text>
+
+          <line x1="150" y1="178" x2="150" y2="190" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="50" y="190" width="200" height="28" rx="4" fill="#3a2a00" stroke="#d29922"/>
+          <text x="150" y="207" text-anchor="middle" fill="#f8e3a1" font-size="11">SFTSV 서열 정렬 &amp; 분류</text>
+
+          <line x1="150" y1="218" x2="150" y2="230" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="50" y="230" width="200" height="28" rx="4" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="150" y="247" text-anchor="middle" fill="#dbb8ff" font-size="11">바이럴로드 정량 &amp; 계통분석</text>
+
+          <line x1="150" y1="258" x2="150" y2="270" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="50" y="270" width="200" height="40" rx="4" fill="#1a7f37" stroke="#3fb950"/>
+          <text x="150" y="287" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">임상 보고</text>
+          <text x="150" y="302" text-anchor="middle" fill="#acf2bd" font-size="10">감염 확인 + 유전자형 + 계통</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="grid-2">
+      <div class="infobox amber">
+        <div class="infobox-title">mNGS의 SFTSV 진단 장점</div>
+        기존 RT-PCR 검사 대비 알려지지 않은 변이 바이러스 탐지 가능, 바이러스 전체 게놈 정보 획득, 바이러스혈증 수준(copies/mL)의 정밀 정량화, 신속한 계통분류로 역학 조사 지원이 가능합니다.
+      </div>
+      <div class="infobox red">
+        <div class="infobox-title">임상적 의의</div>
+        바이러스혈증(viremia)의 수준은 예후와 직결됩니다. mNGS로 측정한 바이럴 로드가 높을수록 중증화 위험이 높습니다. 또한 L 분절 분석으로 바이러스 약제 내성 돌연변이도 모니터링 가능합니다.
+      </div>
+    </div>
+
+    <div class="code-window">
+      <div class="code-header">
+        <span class="code-dot red"></span>
+        <span class="code-dot amber"></span>
+        <span class="code-dot green"></span>
+        <span class="code-filename">sftsv_mngs.sh — SFTSV mNGS 분석 예시</span>
+      </div>
+      <div class="code-body">
+        <pre><span class="c-comment"># 호스트(인간) 리드 제거 → 병원체 리드만 추출</span>
+<span class="c-cmd">bowtie2</span> <span class="c-flag">-x</span> hg38_index <span class="c-flag">-1</span> R1.fq <span class="c-flag">-2</span> R2.fq \
+  <span class="c-flag">--un-conc-gz</span> <span class="c-path">pathogen_reads.fastq.gz</span> \
+  <span class="c-flag">-p</span> <span class="c-num">16</span> <span class="c-flag">-S</span> /dev/null
+
+<span class="c-comment"># SFTSV 참조 게놈에 정렬 (NCBI: NC_018136, NC_018137, NC_018138)</span>
+<span class="c-cmd">bwa-mem2</span> mem sftsv_ref.fa \
+  <span class="c-path">pathogen_reads_1.fastq.gz</span> \
+  <span class="c-path">pathogen_reads_2.fastq.gz</span> | \
+<span class="c-cmd">samtools</span> sort <span class="c-flag">-o</span> <span class="c-path">sftsv.sorted.bam</span>
+<span class="c-cmd">samtools</span> index <span class="c-path">sftsv.sorted.bam</span>
+
+<span class="c-comment"># 커버리지 및 바이럴로드 계산</span>
+<span class="c-cmd">samtools</span> coverage <span class="c-path">sftsv.sorted.bam</span>
+<span class="c-comment"># 결과 예:
+# #rname      startpos endpos  numreads covbases  coverage meandepth
+# NC_018136   1        1744    8921     1740      99.77    352.4   (S segment)
+# NC_018137   1        3378    18203    3370      99.76    284.6   (M segment)
+# NC_018138   1        6368    34102    6360      99.87    312.8   (L segment)</span>
+
+<span class="c-comment"># 합의 서열 생성 및 계통분석</span>
+<span class="c-cmd">bcftools</span> mpileup <span class="c-flag">-f</span> sftsv_ref.fa <span class="c-path">sftsv.sorted.bam</span> | \
+<span class="c-cmd">bcftools</span> call <span class="c-flag">-mv</span> <span class="c-flag">-o</span> <span class="c-path">sftsv_variants.vcf</span>
+
+<span class="c-ok"># ✓ 바이럴로드: ~1.2×10⁶ copies/mL (중증 기준 초과)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Case 2: Cancer Genomics -->
+  <div class="section">
+    <div class="section-label">사례 02 — 암 유전체 진단</div>
+    <div class="section-title" style="color:var(--red)">종양 유전체 분석 (Tumor Genomic Profiling)</div>
+    <div class="section-desc">암은 유전자 변이의 축적으로 발생하는 유전체 질환입니다. NGS를 이용한 종양 유전체 분석(Tumor Profiling)은 치료 표적 발굴, 예후 예측, 암 진화 추적에 활용되며, 정밀 종양학(Precision Oncology)의 핵심 기술입니다.</div>
+
+    <!-- Cancer NGS diagram -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 7. 암 유전체 NGS 분석 전략과 주요 변이 유형</div>
+      <svg viewBox="0 0 820 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:820px;min-width:500px">
+        <!-- Biopsy types -->
+        <g transform="translate(10,20)">
+          <text x="120" y="18" text-anchor="middle" fill="#f85149" font-size="12" font-weight="600">검체 유형</text>
+          <rect x="0" y="28" width="240" height="40" rx="5" fill="#21262d" stroke="#484f58"/>
+          <text x="120" y="44" text-anchor="middle" fill="#8b949e" font-size="11">조직 생검</text>
+          <text x="120" y="60" text-anchor="middle" fill="#6e7681" font-size="10">FFPE / Fresh frozen 조직</text>
+
+          <rect x="0" y="76" width="240" height="40" rx="5" fill="#21262d" stroke="#484f58"/>
+          <text x="120" y="92" text-anchor="middle" fill="#8b949e" font-size="11">액체 생검 (Liquid Biopsy)</text>
+          <text x="120" y="108" text-anchor="middle" fill="#6e7681" font-size="10">혈장 ctDNA, 혈중 종양세포</text>
+
+          <text x="120" y="135" text-anchor="middle" fill="#8b949e" font-size="10">↓</text>
+          <rect x="20" y="140" width="200" height="35" rx="5" fill="#1f3a5f" stroke="#1f6feb"/>
+          <text x="120" y="162" text-anchor="middle" fill="#79c0ff" font-size="11">NGS 타깃 패널 / WES / WGS</text>
+
+          <text x="120" y="195" text-anchor="middle" fill="#8b949e" font-size="10">주요 패널 예시:</text>
+          <text x="10" y="210" fill="#6e7681" font-size="10">• Foundation One CDx (324개 유전자)</text>
+          <text x="10" y="224" fill="#6e7681" font-size="10">• MSK-IMPACT (468개 유전자)</text>
+          <text x="10" y="238" fill="#6e7681" font-size="10">• Tempus xT (648개 유전자)</text>
+          <text x="10" y="252" fill="#6e7681" font-size="10">• 국내: C-CAT 패널 등</text>
+        </g>
+
+        <!-- Variant types -->
+        <g transform="translate(275,20)">
+          <text x="130" y="18" text-anchor="middle" fill="#f85149" font-size="12" font-weight="600">탐지 가능한 변이 유형</text>
+
+          <!-- SNV/Indel -->
+          <rect x="0" y="28" width="260" height="45" rx="5" fill="#3a1515" stroke="#f85149"/>
+          <text x="10" y="46" fill="#fca5a5" font-size="11" font-weight="600">SNV / Indel</text>
+          <text x="10" y="65" fill="#8b949e" font-size="10">KRAS G12V, TP53 R175H, EGFR del19, BRAF V600E</text>
+
+          <!-- CNV -->
+          <rect x="0" y="80" width="260" height="45" rx="5" fill="#3a2a00" stroke="#d29922"/>
+          <text x="10" y="98" fill="#f8e3a1" font-size="11" font-weight="600">복제수 변이 (CNV)</text>
+          <text x="10" y="117" fill="#8b949e" font-size="10">ERBB2 증폭(유방암), MYC 증폭, CDKN2A 결실</text>
+
+          <!-- Fusion -->
+          <rect x="0" y="132" width="260" height="45" rx="5" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="10" y="150" fill="#dbb8ff" font-size="11" font-weight="600">유전자 융합 (Gene Fusion)</text>
+          <text x="10" y="169" fill="#8b949e" font-size="10">EML4-ALK (폐암), BCR-ABL (CML), FGFR 융합</text>
+
+          <!-- MSI/TMB -->
+          <rect x="0" y="184" width="260" height="45" rx="5" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="10" y="202" fill="#acf2bd" font-size="11" font-weight="600">MSI / TMB</text>
+          <text x="10" y="221" fill="#8b949e" font-size="10">면역항암제 반응 예측 바이오마커</text>
+
+          <!-- Germline -->
+          <rect x="0" y="236" width="260" height="45" rx="5" fill="#1f3a5f" stroke="#58a6ff"/>
+          <text x="10" y="254" fill="#79c0ff" font-size="11" font-weight="600">생식세포계 변이 (Germline)</text>
+          <text x="10" y="273" fill="#8b949e" font-size="10">BRCA1/2, MLH1 등 유전성 암 소인</text>
+        </g>
+
+        <!-- Clinical action -->
+        <g transform="translate(560,20)">
+          <text x="120" y="18" text-anchor="middle" fill="#f85149" font-size="12" font-weight="600">임상 적용</text>
+
+          <rect x="0" y="28" width="240" height="50" rx="5" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="120" y="46" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">표적 치료제 선택</text>
+          <text x="10" y="62" fill="#6e7681" font-size="10">EGFR 돌연변이 → 오시머티닙</text>
+          <text x="10" y="72" fill="#6e7681" font-size="10">ALK 융합 → 알렉티닙, 브리가티닙</text>
+
+          <rect x="0" y="86" width="240" height="50" rx="5" fill="#1f3a5f" stroke="#58a6ff"/>
+          <text x="120" y="104" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="600">면역항암 반응 예측</text>
+          <text x="10" y="120" fill="#6e7681" font-size="10">TMB-H / MSI-H → 펨브롤리주맙</text>
+          <text x="10" y="130" fill="#6e7681" font-size="10">PD-L1 발현 &amp; IHC 병행</text>
+
+          <rect x="0" y="144" width="240" height="50" rx="5" fill="#3a1515" stroke="#f85149"/>
+          <text x="120" y="162" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">내성 모니터링</text>
+          <text x="10" y="178" fill="#6e7681" font-size="10">ctDNA 추적으로 내성 돌연변이 조기 탐지</text>
+          <text x="10" y="190" fill="#6e7681" font-size="10">EGFR T790M → 3세대 TKI 전환</text>
+
+          <rect x="0" y="202" width="240" height="50" rx="5" fill="#3a2a00" stroke="#d29922"/>
+          <text x="120" y="220" text-anchor="middle" fill="#f8e3a1" font-size="11" font-weight="600">동반진단 (CDx)</text>
+          <text x="10" y="236" fill="#6e7681" font-size="10">FDA/식약처 승인 NGS CDx</text>
+          <text x="10" y="248" fill="#6e7681" font-size="10">예: Foundation One CDx 등</text>
+
+          <rect x="0" y="260" width="240" height="32" rx="5" fill="#21262d" stroke="#484f58"/>
+          <text x="120" y="280" text-anchor="middle" fill="#8b949e" font-size="10">유전성 위험군 상담 (BRCA 등)</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- ctDNA / Liquid biopsy -->
+    <div class="section-label" style="margin-top:24px">액체 생검 (Liquid Biopsy) 원리</div>
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 8. 혈액 내 순환 종양 DNA(ctDNA) 탐지 원리</div>
+      <svg viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:820px;min-width:500px">
+        <defs>
+          <marker id="carr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#484f58"/></marker>
+        </defs>
+        <!-- Tumor -->
+        <ellipse cx="80" cy="100" rx="65" ry="70" fill="#3a1515" stroke="#f85149" stroke-width="1.5"/>
+        <text x="80" y="90" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="600">종양</text>
+        <text x="80" y="107" text-anchor="middle" fill="#8b949e" font-size="10">세포 사멸 →</text>
+        <text x="80" y="122" text-anchor="middle" fill="#8b949e" font-size="10">DNA 방출</text>
+
+        <!-- Arrow -->
+        <line x1="148" y1="100" x2="175" y2="100" stroke="#f85149" stroke-width="1.5" marker-end="url(#carr)"/>
+
+        <!-- Blood vessel -->
+        <rect x="180" y="50" width="220" height="100" rx="8" fill="#1a0d0d" stroke="#f85149" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="290" y="72" text-anchor="middle" fill="#6e7681" font-size="10">혈류</text>
+        <!-- cfDNA fragments -->
+        <rect x="195" y="85" width="35" height="6" rx="2" fill="#f85149" opacity="0.8"/>
+        <text x="212" y="108" text-anchor="middle" fill="#fca5a5" font-size="9">ctDNA</text>
+        <rect x="240" y="100" width="30" height="6" rx="2" fill="#f85149" opacity="0.7"/>
+        <rect x="280" y="82" width="40" height="6" rx="2" fill="#484f58" opacity="0.6"/>
+        <text x="300" y="108" text-anchor="middle" fill="#6e7681" font-size="9">cfDNA</text>
+        <rect x="330" y="95" width="30" height="6" rx="2" fill="#484f58" opacity="0.6"/>
+        <rect x="240" y="120" width="35" height="6" rx="2" fill="#f85149" opacity="0.9"/>
+        <!-- VAF label -->
+        <text x="290" y="145" text-anchor="middle" fill="#d29922" font-size="10">ctDNA 비율: 0.01–5%</text>
+
+        <!-- Arrow to blood draw -->
+        <line x1="405" y1="100" x2="430" y2="100" stroke="#484f58" stroke-width="1.5" marker-end="url(#carr)"/>
+
+        <!-- Blood tube -->
+        <rect x="435" y="60" width="45" height="90" rx="6" fill="#1f3a5f" stroke="#58a6ff" stroke-width="1.5"/>
+        <rect x="440" y="65" width="35" height="70" rx="4" fill="#b91c1c" opacity="0.4"/>
+        <text x="457" y="170" text-anchor="middle" fill="#8b949e" font-size="10">혈장</text>
+
+        <!-- Arrow -->
+        <line x1="485" y1="100" x2="510" y2="100" stroke="#484f58" stroke-width="1.5" marker-end="url(#carr)"/>
+
+        <!-- cfDNA extraction -->
+        <rect x="515" y="65" width="90" height="75" rx="6" fill="#21262d" stroke="#484f58"/>
+        <text x="560" y="92" text-anchor="middle" fill="#8b949e" font-size="10">cfDNA</text>
+        <text x="560" y="107" text-anchor="middle" fill="#8b949e" font-size="10">추출</text>
+        <text x="560" y="128" text-anchor="middle" fill="#6e7681" font-size="9">~170bp 단편</text>
+
+        <!-- Arrow -->
+        <line x1="610" y1="100" x2="635" y2="100" stroke="#484f58" stroke-width="1.5" marker-end="url(#carr)"/>
+
+        <!-- Ultra-deep seq -->
+        <rect x="640" y="50" width="170" height="100" rx="6" fill="#1f3a5f" stroke="#58a6ff" stroke-width="1.5"/>
+        <text x="725" y="75" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="600">초고심도 시퀀싱</text>
+        <text x="725" y="93" text-anchor="middle" fill="#6e7681" font-size="10">1,000–10,000x depth</text>
+        <text x="725" y="109" text-anchor="middle" fill="#6e7681" font-size="10">UMI 오류 보정</text>
+        <text x="725" y="125" text-anchor="middle" fill="#3fb950" font-size="10">ctDNA 돌연변이 탐지</text>
+        <text x="725" y="141" text-anchor="middle" fill="#6e7681" font-size="9">VAF 0.01% 감도</text>
+      </svg>
+    </div>
+
+    <!-- Cancer gene driver mutations visualization -->
+    <div class="diagram-wrap">
+      <div class="diagram-title">그림 9. 주요 암 유전자 변이와 치료 표적 연결 — 폐선암 예시</div>
+      <svg viewBox="0 0 820 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:820px;min-width:500px">
+        <!-- Signaling pathways overview -->
+        <g transform="translate(10,15)">
+          <!-- EGFR pathway -->
+          <rect x="0" y="0" width="100" height="35" rx="4" fill="#3a2a00" stroke="#d29922"/>
+          <text x="50" y="17" text-anchor="middle" fill="#f8e3a1" font-size="11" font-weight="600">EGFR</text>
+          <text x="50" y="30" text-anchor="middle" fill="#8b949e" font-size="9">~30% 폐선암</text>
+
+          <line x1="50" y1="35" x2="50" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="55" width="100" height="35" rx="4" fill="#1f3a5f" stroke="#1f6feb"/>
+          <text x="50" y="72" text-anchor="middle" fill="#79c0ff" font-size="11">RAS</text>
+          <text x="50" y="85" text-anchor="middle" fill="#8b949e" font-size="9">KRAS G12C 등</text>
+
+          <line x1="50" y1="90" x2="50" y2="110" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="110" width="100" height="35" rx="4" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="50" y="127" text-anchor="middle" fill="#dbb8ff" font-size="11">RAF/MEK</text>
+          <text x="50" y="140" text-anchor="middle" fill="#8b949e" font-size="9">BRAF V600E 3%</text>
+
+          <line x1="50" y1="145" x2="50" y2="165" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="165" width="100" height="35" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="50" y="182" text-anchor="middle" fill="#acf2bd" font-size="11">ERK</text>
+          <text x="50" y="195" text-anchor="middle" fill="#8b949e" font-size="9">증식 신호</text>
+        </g>
+
+        <!-- ALK/ROS1 pathway -->
+        <g transform="translate(130,15)">
+          <rect x="0" y="0" width="110" height="35" rx="4" fill="#1f3a5f" stroke="#58a6ff"/>
+          <text x="55" y="17" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="600">ALK / ROS1</text>
+          <text x="55" y="30" text-anchor="middle" fill="#8b949e" font-size="9">융합 유전자 5%</text>
+
+          <line x1="55" y1="35" x2="55" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="55" width="110" height="35" rx="4" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="55" y="72" text-anchor="middle" fill="#dbb8ff" font-size="11">JAK/STAT</text>
+          <text x="55" y="85" text-anchor="middle" fill="#8b949e" font-size="9">세포 생존 신호</text>
+
+          <line x1="55" y1="90" x2="55" y2="110" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="110" width="110" height="55" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="55" y="130" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">치료제</text>
+          <text x="55" y="148" text-anchor="middle" fill="#6e7681" font-size="10">알렉티닙 (2세대)</text>
+          <text x="55" y="162" text-anchor="middle" fill="#6e7681" font-size="10">브리가티닙</text>
+        </g>
+
+        <!-- MET/RET pathway -->
+        <g transform="translate(260,15)">
+          <rect x="0" y="0" width="110" height="35" rx="4" fill="#3a1515" stroke="#f85149"/>
+          <text x="55" y="17" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">MET / RET</text>
+          <text x="55" y="30" text-anchor="middle" fill="#8b949e" font-size="9">증폭/엑손스킵/융합</text>
+
+          <line x1="55" y1="35" x2="55" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="55" width="110" height="55" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="55" y="77" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">치료제</text>
+          <text x="55" y="95" text-anchor="middle" fill="#6e7681" font-size="10">테포티닙 (MET)</text>
+          <text x="55" y="109" text-anchor="middle" fill="#6e7681" font-size="10">셀페르카티닙 (RET)</text>
+        </g>
+
+        <!-- PIK3CA pathway -->
+        <g transform="translate(390,15)">
+          <rect x="0" y="0" width="110" height="35" rx="4" fill="#3a2a00" stroke="#d29922"/>
+          <text x="55" y="17" text-anchor="middle" fill="#f8e3a1" font-size="11" font-weight="600">PIK3CA / PTEN</text>
+          <text x="55" y="30" text-anchor="middle" fill="#8b949e" font-size="9">PI3K-AKT-mTOR</text>
+
+          <line x1="55" y1="35" x2="55" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="55" width="110" height="35" rx="4" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="55" y="72" text-anchor="middle" fill="#dbb8ff" font-size="11">AKT / mTOR</text>
+          <text x="55" y="85" text-anchor="middle" fill="#8b949e" font-size="9">세포 생존/증식</text>
+
+          <line x1="55" y1="90" x2="55" y2="110" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="110" width="110" height="55" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="55" y="130" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">치료제</text>
+          <text x="55" y="148" text-anchor="middle" fill="#6e7681" font-size="10">에베롤리무스</text>
+          <text x="55" y="162" text-anchor="middle" fill="#6e7681" font-size="10">(mTOR 억제제)</text>
+        </g>
+
+        <!-- TP53/RB1 -->
+        <g transform="translate(520,15)">
+          <rect x="0" y="0" width="110" height="35" rx="4" fill="#1f3a5f" stroke="#58a6ff"/>
+          <text x="55" y="17" text-anchor="middle" fill="#79c0ff" font-size="11" font-weight="600">TP53 / RB1</text>
+          <text x="55" y="30" text-anchor="middle" fill="#8b949e" font-size="9">종양억제 유전자</text>
+
+          <line x1="55" y1="35" x2="55" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="55" width="110" height="55" rx="4" fill="#3a1515" stroke="#f85149"/>
+          <text x="55" y="77" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="600">세포주기 이상</text>
+          <text x="55" y="95" text-anchor="middle" fill="#6e7681" font-size="10">G1/S 체크포인트</text>
+          <text x="55" y="109" text-anchor="middle" fill="#6e7681" font-size="10">손상 무기력화</text>
+        </g>
+
+        <!-- MSI/TMB / Immuno -->
+        <g transform="translate(650,15)">
+          <rect x="0" y="0" width="155" height="35" rx="4" fill="#1a3a20" stroke="#3fb950"/>
+          <text x="77" y="17" text-anchor="middle" fill="#acf2bd" font-size="11" font-weight="600">TMB-H / MSI-H</text>
+          <text x="77" y="30" text-anchor="middle" fill="#8b949e" font-size="9">면역 관련 바이오마커</text>
+
+          <line x1="77" y1="35" x2="77" y2="55" stroke="#484f58" stroke-width="1.5" marker-end="url(#sarr)"/>
+
+          <rect x="0" y="55" width="155" height="55" rx="4" fill="#2a1a4a" stroke="#bc8cff"/>
+          <text x="77" y="77" text-anchor="middle" fill="#dbb8ff" font-size="11" font-weight="600">면역항암제</text>
+          <text x="77" y="95" text-anchor="middle" fill="#6e7681" font-size="10">펨브롤리주맙 (키트루다)</text>
+          <text x="77" y="109" text-anchor="middle" fill="#6e7681" font-size="10">니볼루맙 (옵디보)</text>
+
+          <rect x="0" y="130" width="155" height="40" rx="4" fill="#21262d" stroke="#484f58"/>
+          <text x="77" y="148" text-anchor="middle" fill="#8b949e" font-size="10">mismatch repair 결핍</text>
+          <text x="77" y="163" text-anchor="middle" fill="#6e7681" font-size="9">MLH1, MSH2, MSH6, PMS2</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Clinical report example -->
+    <div class="card">
+      <div class="card-title">암 유전체 NGS 임상 보고서 (요약) — 폐선암 환자 예시</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>유전자</th>
+              <th>변이</th>
+              <th>변이 유형</th>
+              <th>VAF / CN</th>
+              <th>임상 의의</th>
+              <th>치료 옵션</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--amber2);font-weight:600">EGFR</td>
+              <td class="mut-del">del E746_A750 (엑손19)</td>
+              <td><span class="badge badge-red">인프레임 결실</span></td>
+              <td>61%</td>
+              <td><span class="badge badge-red">활성화 돌연변이</span></td>
+              <td style="font-family:var(--sans);color:var(--green)">오시머티닙 1차</td>
+            </tr>
+            <tr>
+              <td style="color:var(--red)">TP53</td>
+              <td class="mut-snv">c.524G&gt;A (R175H)</td>
+              <td><span class="badge badge-amber">Missense</span></td>
+              <td>58%</td>
+              <td><span class="badge badge-amber">종양억제 소실</span></td>
+              <td style="font-family:var(--sans);color:var(--text2)">직접 표적 없음</td>
+            </tr>
+            <tr>
+              <td style="color:var(--purple)">MYC</td>
+              <td>증폭</td>
+              <td><span class="badge badge-purple">CNV 증폭</span></td>
+              <td>CN=12</td>
+              <td><span class="badge badge-amber">예후 불량 인자</span></td>
+              <td style="font-family:var(--sans);color:var(--text2)">임상 연구 검토</td>
+            </tr>
+            <tr>
+              <td style="color:var(--green)">MSS</td>
+              <td>안정</td>
+              <td><span class="badge badge-gray">MSI-Low</span></td>
+              <td>TMB=4.2</td>
+              <td><span class="badge badge-gray">면역항암 비적합</span></td>
+              <td style="font-family:var(--sans);color:var(--text2)">단독 면역치료 제한</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;padding:10px 14px;background:var(--surface2);border-radius:6px;font-size:13px;color:var(--text2)">
+        <strong style="color:var(--text)">판정:</strong> EGFR 엑손19 결실 돌연변이 양성 → 오시머티닙(타그리소) 1차 치료 권고. 치료 중 내성 발생 시 T790M 여부 확인을 위한 ctDNA 추적 검사 권고.
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="infobox">
+        <div class="infobox-title">동반진단(CDx)이란?</div>
+        특정 치료제와 함께 FDA/식약처 승인을 받은 진단 검사입니다. 예: Foundation One CDx는 100개 이상의 적응증에 대해 치료 가이드를 제공합니다. 국내에서는 C-CAT(국가암빅데이터허브)를 통해 패널 검사 지원이 이루어집니다.
+      </div>
+      <div class="infobox green">
+        <div class="infobox-title">정밀 종양학의 미래</div>
+        단일 유전자 바이오마커를 넘어, 멀티오믹스(WGS + 전사체 + 단백체 + 에피지놈) 통합 분석과 AI 기반 예후 예측이 차세대 임상 표준으로 자리잡고 있습니다. 특히 종양 미세환경 분석과 공간 전사체학이 주목받고 있습니다.
+      </div>
+    </div>
+  </div>
+
+</section>
+
 <script>
-  // Build the decorative FASTQ reel with colorized bases + Phred-style quality strip
-  const seqs = [
-    "ATCGGCTAGCTTAGCGATCCAGT",
-    "TGGCATCGATCGTAGCTAGGTCA",
-    "CGATCGGATCCTAGCATGGCTAA",
-    "GGTACGATCGATGCTAGGCATCG"
-  ];
-  const colorOf = { A:'var(--base-A)', T:'var(--base-T)', G:'var(--base-G)', C:'var(--base-C)' };
-  const qualPalette = ['#3DDC97','#3DDC97','#FFC857','#FFC857','#FF6B6B','#3DDC97','#5B8DEF'];
-
-  function colorizeSeq(seq) {
-    return seq.split('').map(ch => `<span style="color:${colorOf[ch] || 'var(--base-N)'}">${ch}</span>`).join('');
-  }
-  function randomQualStrip(len) {
-    let out = '<span class="qual-strip">';
-    for (let i=0;i<len;i++){
-      const c = qualPalette[Math.floor(Math.random()*qualPalette.length)];
-      out += `<span style="background:${c}; opacity:${(0.5+Math.random()*0.5).toFixed(2)}"></span>`;
-    }
-    return out + '</span>';
-  }
-
-  const reel = document.getElementById('reelBody');
-  let html = '';
-  seqs.forEach((s, i) => {
-    html += `<div class="reel-line header">@SRR_demo.${1000+i} length=${s.length}</div>`;
-    html += `<div class="reel-line">${colorizeSeq(s)}</div>`;
-    html += `<div class="reel-line header">+</div>`;
-    html += `<div class="reel-line">${randomQualStrip(s.length)}</div>`;
-  });
-  reel.innerHTML = html;
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
 </script>
 </body>
 </html>
