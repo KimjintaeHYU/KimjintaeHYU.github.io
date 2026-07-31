@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>김진태_기초의학실습캠프</title>
+<title>김진태 · 기초의학실습캠프</title>
 <meta name="description" content="lab1~lab3 실습 페이지와 관련 자료 파일 모음">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -19,79 +19,68 @@
 <main class="wrap">
 
   <section class="hero">
-    <p class="eyebrow">실습 아카이브</p>
+    <p class="eyebrow">기초의학실습캠프</p>
     <h1>
       실습 자료실
-      <em>LAB 01 — 04</em>
+      <em>LAB 01 — 03</em>
     </h1>
     <p class="lead">
-      lab1부터 lab3까지의 실습 페이지와, 실습에 필요한 자료 파일을 한곳에 모았습니다.
+      시퀀싱 데이터 분석 실습 3개와, 실습에 필요한 자료 파일을 한곳에 모았습니다.
     </p>
-    <!-- 아래 숫자/날짜는 직접 수정하세요 -->
     <p class="stamp">
       <span>최종 수정 <b>2026.07.31</b></span>
-  
+      <span>실습 <b>3</b>개</span>
     </p>
   </section>
 
   <!-- ============ 실습 페이지 ============ -->
   <section class="section">
     <h2>실습 페이지</h2>
-    <p class="note">순서대로 진행하도록 구성되어 있습니다.</p>
+    <p class="note callout">
+      반드시 <b>파일을 저장한 뒤 열어서</b> 진행하세요. 웹에서 바로 열면 파일 업로드 이후 단계가 동작하지 않습니다.
+      <b>웹에서 보기</b>는 내용을 미리 훑어볼 때만 사용하세요.
+    </p>
 
     <ul class="labs">
-      <li>
-        <a class="lab" href="lab1.html">
-          <span class="lab__no">01</span>
-          <span class="lab__title">
-            실습 1
-            <span class="lab__sub">NGS illumina sequencing</span>
-          </span>
-          <span class="lab__leader"></span>
-          <span class="lab__go">lab1.html →</span>
-        </a>
+      <li class="lab">
+        <span class="lab__no">01</span>
+        <span class="lab__title">
+          실습 1
+          <span class="lab__sub">NGS Illumina sequencing</span>
+        </span>
+        <span class="lab__leader"></span>
+        <a class="lab__view" href="lab1.html">웹에서 보기</a>
+        <a class="lab__dl" href="lab1.html" download="lab1.html">lab1.html 저장</a>
       </li>
-      <li>
-        <a class="lab" href="lab2.html">
-          <span class="lab__no">02</span>
-          <span class="lab__title">
-            실습 2
-            <span class="lab__sub">NGS long read sequencing</span>
-          </span>
-          <span class="lab__leader"></span>
-          <span class="lab__go">lab2.html →</span>
-        </a>
+
+      <li class="lab">
+        <span class="lab__no">02</span>
+        <span class="lab__title">
+          실습 2
+          <span class="lab__sub">NGS long read sequencing</span>
+        </span>
+        <span class="lab__leader"></span>
+        <a class="lab__view" href="lab2.html">웹에서 보기</a>
+        <a class="lab__dl" href="lab2.html" download="lab2.html">lab2.html 저장</a>
       </li>
-      <li>
-        <a class="lab" href="lab3.html">
-          <span class="lab__no">03</span>
-          <span class="lab__title">
-            실습 3
-            <span class="lab__sub">single cell sequencing</span>
-          </span>
-          <span class="lab__leader"></span>
-          <span class="lab__go">lab3.html →</span>
-        </a>
-      </li>
-      <li>
-        <a class="lab" href="lab4.html">
-          <span class="lab__no">04</span>
-          <span class="lab__title">
-            실습 4
-            <span class="lab__sub">없음</span>
-          </span>
-          <span class="lab__leader"></span>
-          <span class="lab__go">lab4.html →</span>
-        </a>
+
+      <li class="lab">
+        <span class="lab__no">03</span>
+        <span class="lab__title">
+          실습 3
+          <span class="lab__sub">Single cell sequencing</span>
+        </span>
+        <span class="lab__leader"></span>
+        <a class="lab__view" href="lab3.html">웹에서 보기</a>
+        <a class="lab__dl" href="lab3.html" download="lab3.html">lab3.html 저장</a>
       </li>
     </ul>
   </section>
 
   <!-- ============ 파일 다운로드 ============ -->
   <!--
-    파일은 저장소의 files/ 폴더에 올리고 아래 href를 그 경로로 맞추면 됩니다.
-    download 속성이 있으면 브라우저에서 미리보기 대신 바로 저장됩니다.
-    파일명은 영문·숫자·하이픈만 쓰는 것을 권장합니다.
+    파일은 index.html과 같은 위치(저장소 루트)에 올려두면 됩니다.
+    href 값은 실제 파일명과 대소문자까지 정확히 같아야 합니다.
   -->
   <section class="section">
     <h2>자료 다운로드</h2>
@@ -100,44 +89,41 @@
     <ul class="files">
       <li>
         <a class="file" href="GCF_000005845.2_ASM584v2_genomic.fna.gz" download>
-          <span class="file__ext">ZIP</span>
+          <span class="file__ext">FASTA</span>
           <span class="file__name">
-            lab1-source.zip
-            <span class="file__desc">실습 1 예제 소스</span>
+            GCF_000005845.2_ASM584v2_genomic.fna.gz
+            <span class="file__desc">대장균 <i>E. coli</i> K-12 MG1655 참조 게놈</span>
           </span>
-          <span class="file__meta">대장균 게놈</span>
           <span class="file__dl">내려받기</span>
         </a>
       </li>
       <li>
         <a class="file" href="intro.pptx" download>
-          <span class="file__ext">매뉴얼1</span>
+          <span class="file__ext">PPTX</span>
           <span class="file__name">
-            lab-manual.pdf
-            <span class="file__desc">실습 매뉴얼 1</span>
+            intro.pptx
+            <span class="file__desc">오리엔테이션 · 실습 개요</span>
           </span>
-          <span class="file__meta">ppt</span>
           <span class="file__dl">내려받기</span>
         </a>
       </li>
-           <li>
+      <li>
         <a class="file" href="lab12.pptx" download>
-          <span class="file__ext">매뉴얼2</span>
+          <span class="file__ext">PPTX</span>
           <span class="file__name">
-            lab-manual.pdf
-            <span class="file__desc">실습 매뉴얼 2</span>
+            lab12.pptx
+            <span class="file__desc">실습 1·2 매뉴얼</span>
           </span>
-          <span class="file__meta">ppt</span>
           <span class="file__dl">내려받기</span>
         </a>
-      </li>      <li>
+      </li>
+      <li>
         <a class="file" href="lab3.pptx" download>
-          <span class="file__ext">매뉴얼3</span>
+          <span class="file__ext">PPTX</span>
           <span class="file__name">
-            lab-manual.pdf
-            <span class="file__desc">실습 매뉴얼 3</span>
+            lab3.pptx
+            <span class="file__desc">실습 3 매뉴얼</span>
           </span>
-          <span class="file__meta">ppt</span>
           <span class="file__dl">내려받기</span>
         </a>
       </li>
