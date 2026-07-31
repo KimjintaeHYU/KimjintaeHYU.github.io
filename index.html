@@ -18,20 +18,36 @@
 
 <main class="wrap">
 
-  <section class="hero">
-    <p class="eyebrow">기초의학실습캠프</p>
-    <h1>
-      실습 자료실
-      <em>LAB 01 — 03</em>
-    </h1>
-    <p class="lead">
-      시퀀싱 데이터 분석 실습 3개와, 실습에 필요한 자료 파일을 한곳에 모았습니다.
-    </p>
-    <p class="stamp">
-      <span>최종 수정 <b>2026.07.31</b></span>
-      <span>실습 <b>3</b>개</span>
-    </p>
+  <!-- ============ 강사 소개 ============ -->
+  <!-- 아래 이름과 본문만 고쳐 쓰시면 됩니다. 본문은 그냥 줄글로 이어 쓰세요. -->
+  <section class="intro">
+    <h1 class="intro__title">강좌소개</h1>
+
+<p class="intro__body">
+  이 과정은 NGS와 single cell sequencing을 비롯한 오믹스 기반 연구의 개요를 소개하고,
+  hands-on 방식으로 기초적인 분석 과정을 직접 체험하도록 설계되었습니다.
+</p>
+
+<p class="intro__body">
+  실제 오믹스 연구는 긴 사슬로 이어집니다. wet lab에서 세포를 분리하고, 단일세포 분석의 경우 유세포분석을 거쳐,
+  DNA/RNA를 gel, bead 등을 이용해 직접 정제하는 library prep 단계에서 출발해, 시퀀싱으로 원시 데이터를 얻고, 이를 다룰 서버 환경을
+  구축한 뒤, 리눅스와 R, python 등 다양한 분석 도구들을 오가며 필요한 패키지를 설치하고 분석 파이프라인을
+  세워야 합니다. 단계마다 별도의 장비와 전산 자원, 그리고 적지 않은 학습 시간이 요구됩니다.
+  짧은 실습 기간 안에 이 전 과정을 실제 환경에서 재현하는 것은 현실적으로 불가능합니다.
+</p>
+
+<p class="intro__body">
+  그래서 이 캠프는 다른 길을 택했습니다. 분석의 핵심 단계를 모듈로 나누어 HTML 파일 하나에
+  담았고, 각 실습 파일은 브라우저만 있으면 그대로 실행됩니다. 파이썬 인터프리터와 minimap2,
+  samtools 같은 분석 도구가 모두 WebAssembly로 브라우저 안에서 동작하기 때문에, 서버 접속이나
+  프로그램 설치 없이 각자의 노트북에서 바로 시작할 수 있습니다. 참조서열을 자르고, 리드를
+  생성하고, 정렬과 변이 검출로 이어지는 흐름을 직접 손으로 따라가 보는 것이 이 과정의
+  목표입니다.
+</p>
+  <p class="intro__body">
+ 저는 엄밀하게 이러한 분야를 모두 연구해 온 전문가는 아니며, 오히려 분석 툴을 저의 project 를 위해 일부 빌려 쓴 user의 경험에 가깝습니다.  따라서 해당 code의 전산학적 원리나, 다양한 모듈의 분석 방법의 수학적 차이 등은 정확히 이해하고 있지는 못하지만, 그 중심적인 원리에 대해 사용해 본 경험은 존재하며, 이러한 부분들을 공유하는 시간을 갖고자 합니다. 다행히도 최근의 AI의 발달 등으로 인해서, 예전처럼 복잡한 컴퓨터 언어에 익숙하지 못하고, 다양한 프로그램 툴들을 잘 알지 못하더라도 많은 흥미로운 일들이 가능해 진 것 같습니다. 이러한 tool들을 필요한 연구에 차후 이용하실 수 있으면 좋을 것 같습니다. </p>
   </section>
+
 
   <!-- ============ 실습 페이지 ============ -->
   <section class="section">
@@ -74,6 +90,18 @@
         <a class="lab__view" href="lab3.html">웹에서 보기</a>
         <a class="lab__dl" href="lab3.html" download="lab3.html">lab3.html 저장</a>
       </li>
+     <li class="lab">
+        <span class="lab__no">04</span>
+        <span class="lab__title">
+          실습 4
+          <span class="lab__sub">Spatial transcriptomics — FISH 방식 vs Visium 방식</span>
+        </span>
+        <span class="lab__leader"></span>
+        <a class="lab__view" href="lab4.html">웹에서 보기</a>
+        <a class="lab__dl" href="lab4.html" download="lab4.html">lab4.html 저장</a>
+      </li>
+
+
     </ul>
   </section>
 
